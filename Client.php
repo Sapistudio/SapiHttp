@@ -2,6 +2,8 @@
 
 namespace SapiStudio\SapiBrowser;
 use Goutte\Client as BrowserClient;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\BrowserKit\Response;
 
 /**
  * Client
