@@ -51,6 +51,16 @@ class Client extends BrowserClient
     }
     
     /**
+     * Client::getCurrentUrl()
+     * 
+     * @param mixed $cookieName
+     * @return
+     */
+    public function getCurrentUrl(){
+        return $this->getHistory()->current()->getUri();
+    }
+    
+    /**
      * Client::hasCookie()
      * 
      * @param mixed $cookieName
