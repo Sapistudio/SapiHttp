@@ -64,4 +64,15 @@ class Client extends BrowserClient
         }
         return false;
     }
+    
+    /**
+     * Client::createResponse()
+     * 
+     * @param mixed $response
+     * @return
+     */
+    protected function createResponse(ResponseInterface $response)
+    {
+        return new Response((string) $response->getBody()->getContents(), $response->getStatusCode(), $response->getHeaders());
+    }
 }
