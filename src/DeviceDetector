@@ -5,6 +5,13 @@ use \Mobile_Detect;
 
 class MobileDetector extends Mobile_Detect
 {
+    public function __construct($userAgent = "")
+    {
+        if ($userAgent != "") {
+            $this->setUserAgent($userAgent);
+        }
+    }
+
     /**
      * Get current device's browser.
      *
