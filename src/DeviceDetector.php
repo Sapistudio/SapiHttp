@@ -1,5 +1,4 @@
 <?php
-declare (strict_types = 1);
 namespace SapiStudio\SapiBrowser;
 use \Mobile_Detect;
 
@@ -20,7 +19,7 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return string Device's browser.
      */
-    public function getBrowser(): string
+    public function getBrowser()
     {
         foreach ($this::$browsers as $browser => $UA) {
             $is_browser = 'is'.$browser;
@@ -38,7 +37,7 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return string Device's OS.
      */
-    public function getOperatingSystem(): string
+    public function getOperatingSystem()
     {
         foreach ($this::$operatingSystems as $os => $UA) {
             $is_os = 'is'.$os;
@@ -56,10 +55,9 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return string Device type.
      */
-    public function getDevice(): string
+    public function getDevice()
     {
         $devices = $this->getDevices();
-        
         foreach ($devices as $type => $UA) {
             $is_type = 'is'.$type;
             if ($this->$is_type()) {
@@ -76,7 +74,7 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return array Devices.
      */
-    public function getDevices(): array
+    public function getDevices()
     {
         return \array_merge($this::$phoneDevices, $this::$tabletDevices);
     }
@@ -88,7 +86,7 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return bool
      */
-    public function isPhone(): bool
+    public function isPhone()
     {
         return \array_key_exists($this->getDevice(), $this::$phoneDevices);
     }
@@ -100,7 +98,7 @@ class DeviceDetector extends Mobile_Detect
      *
      * @return bool
      */
-    public function isSmart(): bool
+    public function isSmart()
     {
         return (
             $this->isAndroidOS()
@@ -113,3 +111,4 @@ class DeviceDetector extends Mobile_Detect
         );
     }
 }
+
