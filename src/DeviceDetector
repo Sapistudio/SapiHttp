@@ -1,7 +1,8 @@
 <?php
 declare (strict_types = 1);
-namespace GrottoPress\Mobile;
+namespace SapiStudio\SapiBrowser;
 use \Mobile_Detect;
+
 class MobileDetector extends Mobile_Detect
 {
     /**
