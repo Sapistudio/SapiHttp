@@ -4,9 +4,10 @@
     "license": "MIT",
     "require": {
         "php": ">=5.6",
-        "fabpot/goutte": "^3.1"
+        "fabpot/goutte": "^3.1",
+        "mobiledetect/mobiledetectlib": "^2.8"
     },
     "autoload": {
-         "psr-4": { "SapiStudio\\SapiBrowser\\": "" }
+         "psr-4": { "SapiStudio\\SapiBrowser\\": "src/" }
     }
 }
