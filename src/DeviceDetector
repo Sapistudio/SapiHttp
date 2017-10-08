@@ -3,7 +3,7 @@ declare (strict_types = 1);
 namespace SapiStudio\SapiBrowser;
 use \Mobile_Detect;
 
-class MobileDetector extends Mobile_Detect
+class DeviceDetector extends Mobile_Detect
 {
     public function __construct($userAgent = "")
     {
