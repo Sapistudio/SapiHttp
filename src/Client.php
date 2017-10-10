@@ -19,7 +19,7 @@ class Client extends BrowserClient
     public function __call($name, $arguments)
     {
         print_R($arguments);
-        $client = $this->->getClient();
+        $client = $this->getClient();
         if (method_exists($client, $name))
             return $client->$name();
     }
