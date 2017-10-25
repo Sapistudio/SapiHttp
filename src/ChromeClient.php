@@ -1,5 +1,5 @@
 <?php
-
+/** fork from https://github.com/spatie/browsershot*/
 namespace SapiStudio\Http;
 
 use Symfony\Component\Process\Process;
