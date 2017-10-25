@@ -1,10 +1,9 @@
 <?php
 
-namespace Spatie\Browsershot;
+namespace SapiStudio\Http;
 
 use Symfony\Component\Process\Process;
-use Spatie\TemporaryDirectory\TemporaryDirectory;
-use Spatie\Browsershot\Exceptions\CouldNotTakeBrowsershot;
+use SapiStudio\Http\Exceptions\CouldNotTakeBrowsershot;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 
