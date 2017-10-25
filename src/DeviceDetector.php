@@ -111,4 +111,3 @@ class DeviceDetector extends Mobile_Detect
         );
     }
 }
-
