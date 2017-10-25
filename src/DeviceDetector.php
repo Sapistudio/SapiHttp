@@ -1,5 +1,5 @@
 <?php
-namespace SapiStudio\SapiBrowser;
+namespace SapiStudio\Http;
 use \Mobile_Detect;
 
 class DeviceDetector extends Mobile_Detect
