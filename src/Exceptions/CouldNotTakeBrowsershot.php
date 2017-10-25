@@ -1,6 +1,6 @@
 <?php
-
-namespace Spatie\Browsershot\Exceptions;
+/** fork from https://github.com/spatie/browsershot*/
+namespace SapiStudio\Http\Exceptions;
 
 use Exception;
 
