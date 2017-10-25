@@ -7,7 +7,7 @@ use SapiStudio\Http\Exceptions\CouldNotTakeBrowsershot;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 
-class Browsershot
+class ChromeClient
 {
     protected $nodeBinary           = 'node';
     protected $npmBinary            = 'npm';
