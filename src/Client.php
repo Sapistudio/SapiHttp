@@ -1,12 +1,14 @@
 <?php
 
-namespace SapiStudio\SapiBrowser;
+namespace SapiStudio\Http;
 use Goutte\Client as BrowserClient;
+use GuzzleHttp\Client as GuzzleHttpClient; 
+use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\BrowserKit\Response;
 
 /**
- * Client
+ * StreamClient
  * 
  * @package 
  * @author SapiStudio
@@ -14,18 +16,29 @@ use Symfony\Component\BrowserKit\Response;
  * @version $Id$
  * @access public
  */
-class Client extends BrowserClient
+class StreamClient extends BrowserClient
 {
     public function __call($name, $arguments)
     {
-        print_R($arguments);
         $client = $this->getClient();
         if (method_exists($client, $name))
             return $client->$name();
     }
     
     /**
-     * Client::setUserAgent()
+     * StreamClient::__construct()
+     * 
+     * @param mixed $options
+     * @return
+     */
+    public function __construct($options = []){
+        parent::__construct();
+        $this->setClient(new GuzzleHttpClient($options));
+        return $this;
+    }
+    
+    /**
+     * StreamClient::setUserAgent()
      * 
      * @param string $user
      * @return
@@ -35,7 +48,7 @@ class Client extends BrowserClient
     }
     
     /**
-     * Client::getCookies()
+     * StreamClient::getCookies()
      * 
      * @return
      */
@@ -44,7 +57,7 @@ class Client extends BrowserClient
     }
     
     /**
-     * Client::setCookies()
+     * StreamClient::setCookies()
      * 
      * @param mixed $cookies
      * @return
@@ -59,7 +72,7 @@ class Client extends BrowserClient
     }
     
     /**
-     * Client::hasCookie()
+     * StreamClient::hasCookie()
      * 
      * @param mixed $cookieName
      * @return
@@ -76,7 +89,7 @@ class Client extends BrowserClient
     }
     
     /**
-     * Client::createResponse()
+     * StreamClient::createResponse()
      * 
      * @param mixed $response
      * @return
