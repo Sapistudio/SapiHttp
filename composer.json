@@ -6,7 +6,8 @@
         "php": ">=5.6",
         "fabpot/goutte": "^3.1",
         "mobiledetect/mobiledetectlib": "^2.8",
-        "guzzlehttp/guzzle": "^6.2"
+        "guzzlehttp/guzzle": "^6.2",
+        "symfony/process": "^3.1"
     },
     "autoload": {
          "psr-4": { "SapiStudio\\Http\\": "src/" }
