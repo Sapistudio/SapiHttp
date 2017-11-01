@@ -30,8 +30,8 @@ class ChromeClient
     protected $timeout              = 60;
     protected $url                  = '';
     protected $userAgent            = '';
-    protected $windowHeight         = 1800;
-    protected $windowWidth          = 2880;
+    protected $windowHeight         = 1200;
+    protected $windowWidth          = 1920;
 
     public static function url($url)
     {
@@ -75,6 +75,13 @@ class ChromeClient
     public function setUrl($url = NULL)
     {
         $this->url = $url;
+        $this->html = '';
+        return $this;
+    }
+    
+    public function setFile($file = NULL)
+    {
+        $this->url = "file://{$file}";;
         $this->html = '';
         return $this;
     }
@@ -285,6 +292,7 @@ class ChromeClient
             $command['options']['networkIdleTimeout'] = $this->networkIdleTimeout;
         }
         if ($this->noSandbox) {
+            //$command['options']['args'] = ['--no-sandbox','--window-size=1920,1080','--force-device-scale-factor=2'];
             $command['options']['args'] = ['--no-sandbox'];
         }
         return $command;
@@ -306,7 +314,6 @@ class ChromeClient
     
     protected function callBrowser($command)
     {
-        $setIncludePathCommand  = "PATH={$this->includePath}";
         $setNodePathCommand     = "NODE_PATH=`{$this->npmBinary} root -g`";
         $binPath                = __DIR__.'/../bin/browser.js';
         $fullCommand            = "sudo ".$setIncludePathCommand.' '.$setNodePathCommand.' '.$this->nodeBinary.' '.escapeshellarg($binPath).' '.escapeshellarg(json_encode($command));
