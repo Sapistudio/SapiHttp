@@ -1,10 +1,6 @@
 <?php
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Debug\Dumper;
-use Illuminate\Contracts\Support\Htmlable;
+use Symfony\Component\DomCrawler\Crawler;
 
 if (! function_exists('getDom')) {
     /**
@@ -15,6 +11,6 @@ if (! function_exists('getDom')) {
      */
     function getDom(string $string)
     {
-        return Symfony\Component\DomCrawler\Crawler($string);
+        return Crawler($string);
     }
 }
