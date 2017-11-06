@@ -1,7 +1,6 @@
 <?php
 namespace SapiStudio\Http;
 
-use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -87,7 +86,7 @@ class RequestClient
     public static function testUris($content=null){
         if(!$content)
             return false;        
-        $crawler    = new Crawler($content);
+        $crawler    = getDom($content);
         $images     = $crawler->filterXpath('//img')->extract(['src','title','alt']);
         $links      = $crawler->filterXpath('//a')->extract(['href','title','alt']);
         array_walk($links, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['href','title','alt'],$val);});
