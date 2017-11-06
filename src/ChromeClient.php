@@ -33,45 +33,93 @@ class ChromeClient
     protected $windowHeight         = 1200;
     protected $windowWidth          = 1920;
 
+    /**
+     * ChromeClient::url()
+     * 
+     * @param mixed $url
+     * @return
+     */
     public static function url($url)
     {
         return (new static)->setUrl($url);
     }
 
+    /**
+     * ChromeClient::html()
+     * 
+     * @param mixed $html
+     * @return
+     */
     public static function html($html)
     {
         return (new static)->setHtml($html);
     }
 
+    /**
+     * ChromeClient::__construct()
+     * 
+     * @param mixed $url
+     * @return
+     */
     public function __construct($url = NULL)
     {
         $this->url = $url;
     }
 
+    /**
+     * ChromeClient::setNodeBinary()
+     * 
+     * @param mixed $nodeBinary
+     * @return
+     */
     public function setNodeBinary($nodeBinary = NULL)
     {
         $this->nodeBinary = $nodeBinary;
         return $this;
     }
 
+    /**
+     * ChromeClient::setNpmBinary()
+     * 
+     * @param mixed $npmBinary
+     * @return
+     */
     public function setNpmBinary($npmBinary = NULL)
     {
         $this->npmBinary = $npmBinary;
         return $this;
     }
 
+    /**
+     * ChromeClient::setIncludePath()
+     * 
+     * @param mixed $includePath
+     * @return
+     */
     public function setIncludePath($includePath = NULL)
     {
         $this->includePath = $includePath;
         return $this;
     }
 
+    /**
+     * ChromeClient::setNetworkIdleTimeout()
+     * 
+     * @param mixed $networkIdleTimeout
+     * @return
+     */
     public function setNetworkIdleTimeout(int $networkIdleTimeout = NULL)
     {
         $this->networkIdleTimeout = $networkIdleTimeout;
         return $this;
     }
 
+    /**
+     * ChromeClient::setUrl()
+     * 
+     * @param mixed $url
+     * @return
+     */
     public function setUrl($url = NULL)
     {
         $this->url = $url;
@@ -79,6 +127,12 @@ class ChromeClient
         return $this;
     }
     
+    /**
+     * ChromeClient::setFile()
+     * 
+     * @param mixed $file
+     * @return
+     */
     public function setFile($file = NULL)
     {
         $this->url = "file://{$file}";;
@@ -86,6 +140,12 @@ class ChromeClient
         return $this;
     }
 
+    /**
+     * ChromeClient::setHtml()
+     * 
+     * @param mixed $html
+     * @return
+     */
     public function setHtml($html = NULL)
     {
         $this->html = $html;
@@ -94,24 +154,49 @@ class ChromeClient
         return $this;
     }
 
+    /**
+     * ChromeClient::clip()
+     * 
+     * @param mixed $x
+     * @param mixed $y
+     * @param mixed $width
+     * @param mixed $height
+     * @return
+     */
     public function clip(int $x, int $y, int $width, int $height)
     {
         $this->clip = compact('x', 'y', 'width', 'height');
         return $this;
     }
 
+    /**
+     * ChromeClient::showBrowserHeaderAndFooter()
+     * 
+     * @return
+     */
     public function showBrowserHeaderAndFooter()
     {
         $this->showBrowserHeaderAndFooter = true;
         return $this;
     }
 
+    /**
+     * ChromeClient::hideBrowserHeaderAndFooter()
+     * 
+     * @return
+     */
     public function hideBrowserHeaderAndFooter()
     {
         $this->showBrowserHeaderAndFooter = false;
         return $this;
     }
 
+    /**
+     * ChromeClient::deviceScaleFactor()
+     * 
+     * @param mixed $deviceScaleFactor
+     * @return
+     */
     public function deviceScaleFactor($deviceScaleFactor)
     {
         // Google Chrome currently supports values of 1, 2, and 3.
@@ -119,48 +204,96 @@ class ChromeClient
         return $this;
     }
 
+    /**
+     * ChromeClient::fullPage()
+     * 
+     * @return
+     */
     public function fullPage()
     {
         $this->fullPage = true;
         return $this;
     }
 
+    /**
+     * ChromeClient::showBackground()
+     * 
+     * @return
+     */
     public function showBackground()
     {
         $this->showBackground = true;
         return $this;
     }
 
+    /**
+     * ChromeClient::hideBackground()
+     * 
+     * @return
+     */
     public function hideBackground()
     {
         $this->showBackground = false;
         return $this;
     }
 
+    /**
+     * ChromeClient::landscape()
+     * 
+     * @param bool $landscape
+     * @return
+     */
     public function landscape($landscape = true)
     {
         $this->landscape = $landscape;
         return $this;
     }
 
+    /**
+     * ChromeClient::margins()
+     * 
+     * @param mixed $top
+     * @param mixed $right
+     * @param mixed $bottom
+     * @param mixed $left
+     * @return
+     */
     public function margins(int $top, int $right, int $bottom, int $left)
     {
         $this->margins = compact('top', 'right', 'bottom', 'left');
         return $this;
     }
 
+    /**
+     * ChromeClient::noSandbox()
+     * 
+     * @return
+     */
     public function noSandbox()
     {
         $this->noSandbox = true;
         return $this;
     }
 
+    /**
+     * ChromeClient::pages()
+     * 
+     * @param mixed $pages
+     * @return
+     */
     public function pages($pages)
     {
         $this->pages = $pages;
         return $this;
     }
 
+    /**
+     * ChromeClient::paperSize()
+     * 
+     * @param mixed $width
+     * @param mixed $height
+     * @return
+     */
     public function paperSize($width,$height)
     {
         $this->paperWidth = $width;
@@ -168,24 +301,49 @@ class ChromeClient
         return $this;
     }
 
+    /**
+     * ChromeClient::format()
+     * 
+     * @param mixed $format
+     * @return
+     */
     public function format($format)
     {
         $this->format = $format;
         return $this;
     }
 
+    /**
+     * ChromeClient::timeout()
+     * 
+     * @param mixed $timeout
+     * @return
+     */
     public function timeout($timeout)
     {
         $this->timeout = $timeout;
         return $this;
     }
 
+    /**
+     * ChromeClient::userAgent()
+     * 
+     * @param mixed $userAgent
+     * @return
+     */
     public function userAgent($userAgent)
     {
         $this->userAgent = $userAgent;
         return $this;
     }
 
+    /**
+     * ChromeClient::windowSize()
+     * 
+     * @param mixed $width
+     * @param mixed $height
+     * @return
+     */
     public function windowSize($width,$height)
     {
         $this->windowWidth  = $width;
@@ -193,6 +351,12 @@ class ChromeClient
         return $this;
     }
 
+    /**
+     * ChromeClient::save()
+     * 
+     * @param mixed $targetPath
+     * @return
+     */
     public function save($targetPath)
     {
         if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'pdf') {
@@ -206,12 +370,23 @@ class ChromeClient
         }
     }
 
+    /**
+     * ChromeClient::bodyHtml()
+     * 
+     * @return
+     */
     public function bodyHtml()
     {
         $command = $this->createBodyHtmlCommand();
         return $this->callBrowser($command);
     }
 
+    /**
+     * ChromeClient::savePdf()
+     * 
+     * @param mixed $targetPath
+     * @return
+     */
     public function savePdf($targetPath)
     {
         $command = $this->createPdfCommand($targetPath);
@@ -222,12 +397,23 @@ class ChromeClient
         }
     }
 
+    /**
+     * ChromeClient::createBodyHtmlCommand()
+     * 
+     * @return
+     */
     public function createBodyHtmlCommand()
     {
         $url = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
         return $this->createCommand($url, 'content');
     }
 
+    /**
+     * ChromeClient::createScreenshotCommand()
+     * 
+     * @param mixed $targetPath
+     * @return
+     */
     public function createScreenshotCommand($targetPath)
     {
         $url        = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
@@ -241,6 +427,12 @@ class ChromeClient
         return $command;
     }
 
+    /**
+     * ChromeClient::createPdfCommand()
+     * 
+     * @param mixed $targetPath
+     * @return
+     */
     public function createPdfCommand($targetPath)
     {
         $url        = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
@@ -275,6 +467,14 @@ class ChromeClient
         return $command;
     }
 
+    /**
+     * ChromeClient::createCommand()
+     * 
+     * @param mixed $url
+     * @param mixed $action
+     * @param mixed $options
+     * @return
+     */
     protected function createCommand($url,$action,$options = [])
     {
         $command = compact('url', 'action', 'options');
@@ -298,6 +498,11 @@ class ChromeClient
         return $command;
     }
 
+    /**
+     * ChromeClient::createTemporaryHtmlFile()
+     * 
+     * @return
+     */
     protected function createTemporaryHtmlFile()
     {
         $this->temporaryHtmlDirectory = (new TemporaryDirectory())->create();
@@ -305,6 +510,11 @@ class ChromeClient
         return "file://{$temporaryHtmlFile}";
     }
 
+    /**
+     * ChromeClient::cleanupTemporaryHtmlFile()
+     * 
+     * @return
+     */
     protected function cleanupTemporaryHtmlFile()
     {
         if ($this->temporaryHtmlDirectory) {
@@ -312,6 +522,12 @@ class ChromeClient
         }
     }
     
+    /**
+     * ChromeClient::callBrowser()
+     * 
+     * @param mixed $command
+     * @return
+     */
     protected function callBrowser($command)
     {
         $setNodePathCommand     = "NODE_PATH=`{$this->npmBinary} root -g`";
