@@ -94,6 +94,10 @@ class RequestClient
         return array_merge_recursive((new static())->validateLinks(array_merge(array_column($extracted, 'href'),array_column($extracted, 'src'))),$extracted);
     }
     
+    public static function make(){
+        return new static();
+    }
+    
     /**
      * RequestClient::isValidURL()
      * 
