@@ -38,7 +38,23 @@ class RequestClient
      */
     public function __call($name, $arguments)
     {
-        return $this->getClient()->$name(...$arguments);
+        try {
+            return $this->getClient()->$name(...$arguments);
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            if (null === $response) {
+                throw $e;
+            }
+        }
+    }
+    
+    /**
+     * RequestClient::make()
+     * 
+     * @return
+     */
+    public static function make(){
+        return new static();
     }
     
     /**
@@ -94,10 +110,6 @@ class RequestClient
         return array_merge_recursive((new static())->validateLinks(array_merge(array_column($extracted, 'href'),array_column($extracted, 'src'))),$extracted);
     }
     
-    public static function make(){
-        return new static();
-    }
-    
     /**
      * RequestClient::isValidURL()
      * 
@@ -141,7 +153,7 @@ class RequestClient
             return false;
         foreach($urlLinks as $keyLink=>$Link){
             if(self::isValidURL($Link)){
-                $promises[$keyLink] = $this->headAsync($Link);
+                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'mailerTesting'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false]);
             }
         }
         $results = Promise\settle($promises)->wait();
