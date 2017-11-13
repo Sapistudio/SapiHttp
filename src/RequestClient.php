@@ -104,7 +104,9 @@ class RequestClient
             return false;        
         $crawler    = getDom($content);
         $images     = $crawler->filterXpath('//img')->extract(['src','title','alt']);
-        $links      = $crawler->filterXpath('//a')->extract(['href','title','alt']);
+        $links      = [];
+        $links      = array_merge($links,$crawler->filterXpath('//a')->extract(['href','title','alt']));
+        $links      = array_merge($links,$crawler->filterXpath('//area')->extract(['href','title','alt']));
         array_walk($links, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['href','title','alt'],$val);});
         array_walk($images, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['src','title','alt'],$val);});
         return array_merge_recursive((new static())->validateLinks(array_merge(array_column($extracted, 'href'),array_column($extracted, 'src'))),$extracted);
@@ -153,7 +155,7 @@ class RequestClient
             return false;
         foreach($urlLinks as $keyLink=>$Link){
             if(self::isValidURL($Link)){
-                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'mailerTesting'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false]);
+                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'mailerTesting'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14]);
             }
         }
         $results = Promise\settle($promises)->wait();
