@@ -1,6 +1,6 @@
 <?php
 /** fork from https://github.com/spatie/browsershot*/
-namespace SapiStudio\Http;
+namespace SapiStudio\Http\Browser;
 
 use Symfony\Component\Process\Process;
 use SapiStudio\Http\Exceptions\CouldNotTakeBrowsershot;
