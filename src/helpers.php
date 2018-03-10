@@ -2,10 +2,10 @@
 
 use Symfony\Component\DomCrawler\Crawler;
 
-if (! function_exists('getDom')) {
+if (! function_exists('getDomCrawler')) {
     /**
      */
-    function getDom($content = '')
+    function getDomCrawler($content = '')
     {
         return new Crawler($content);
     }
