@@ -7,6 +7,8 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Promise;
 
+
+
 /** this is for browser kit use*/
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
@@ -27,7 +29,9 @@ use Psr\Http\Message\ResponseInterface;
 class RequestClient
 {
     protected $httpClient;
-    private $headers = [];
+    private $headers        = [];
+    private $defaultOptions = [];
+    private $currentUrl     = null;
     
     /**
      * RequestClient::__call()
@@ -38,8 +42,15 @@ class RequestClient
      */
     public function __call($name, $arguments)
     {
-        try {
+        if (count($arguments) < 1) {
             return $this->getClient()->$name(...$arguments);
+        }
+        $this->currentUrl   = $arguments[0];
+        $options = isset($arguments[1]) ? $arguments[1] : [];
+        if($this->headers)
+            $options = array_merge_recursive ($options,['headers'=>$this->headers]);
+        try {
+            return $this->getClient()->$name($this->currentUrl,$options);
         } catch (RequestException $e) {
             $response = $e->getResponse();
             if (null === $response) {
@@ -64,7 +75,8 @@ class RequestClient
      * @return
      */
     private function __construct($options = []){
-        $this->setClient(new GuzzleClient($options));
+        $this->defaultOptions = ['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()];
+        $this->setClient(new GuzzleClient(array_merge($this->defaultOptions,$options)));
         return $this;
     }
     
@@ -88,7 +100,7 @@ class RequestClient
     public function getClient()
     {
         if (!$this->httpClient) {
-            $this->httpClient = new GuzzleClient(['allow_redirects' => true, 'cookies' => true]);
+            throw new \Exception('Invalid client');
         }
         return $this->httpClient;
     }
@@ -172,7 +184,9 @@ class RequestClient
     }
     
     
-    /** this is for browser kit*/
+    
+    
+    
     /**
      * RequestClient::setHeader()
      * 
@@ -180,9 +194,12 @@ class RequestClient
      * @param mixed $value
      * @return
      */
-    public function setHeader($name, $value)
+    public function setHeader($name, $value='')
     {
-        $this->headers[strtolower($name)] = $value;
+        if(is_array($name))
+            array_merge($this->headers,$name);
+        else
+            $this->headers[strtolower($name)] = $value;
         return $this;
     }
     
@@ -209,126 +226,12 @@ class RequestClient
     }
     
     /**
-     * RequestClient::restart()
-     * 
-     * @return
-     */
-    public function restart()
-    {
-        parent::restart();
-        $this->resetHeaders();
-    }
-   
-    /**
      * RequestClient::setUserAgent()
      * 
      * @param string $user
      * @return
      */
     public function setUserAgent($user=''){
-        return $this->setServerParameter('HTTP_USER_AGENT',$user);
-    }
-    
-    /**
-     * RequestClient::getCookies()
-     * 
-     * @return
-     */
-    public function getCookies(){
-        return $this->getCookieJar()->all();
-    }
-    
-    /**
-     * RequestClient::setCookies()
-     * 
-     * @param mixed $cookies
-     * @return
-     */
-    public function setCookies($cookies){
-        if($cookies){
-            foreach($cookies as $a=>$cookie){
-                $this->getCookieJar()->set($cookie);
-            }
-        }
-        return $this;
-    }
-    
-    /**
-     * RequestClient::hasCookie()
-     * 
-     * @param mixed $cookieName
-     * @return
-     */
-    public function hasCookie($cookieName=null){
-        $cookies = $this->getCookieJar()->all();
-        if($cookies){
-            foreach ($cookies as $a=>$cookie)
-                if ($cookie->getName() == $cookieName){
-                    return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * RequestClient::doRequest()
-     * 
-     * @param mixed $request
-     * @return
-     */
-    protected function doRequest($request)
-    {
-        $headers = [];
-        foreach ($request->getServer() as $key => $val) {
-            $key = strtolower(str_replace('_', '-', $key));
-            $contentHeaders = ['content-length' => true, 'content-md5' => true, 'content-type' => true];
-            if (0 === strpos($key, 'http-')) {
-                $headers[substr($key, 5)] = $val;
-            }elseif (isset($contentHeaders[$key])) {
-                $headers[$key] = $val;
-            }
-        }
-        $cookies = GuzzleCookieJar::fromArray($this->getCookieJar()->allRawValues($request->getUri()),parse_url($request->getUri(), PHP_URL_HOST));
-        $requestOptions = ['cookies' => $cookies,'allow_redirects' => true];
-        if (!in_array($request->getMethod(), ['GET', 'HEAD'])) {
-            if (null !== $content = $request->getContent()) {
-                $requestOptions['body'] = $content;
-            }else{
-                if ($files = $request->getFiles()) {
-                    $requestOptions['multipart'] = [];
-                } else {
-                    $requestOptions['form_params'] = $request->getParameters();
-                }
-            }
-        }
-        if (!empty($headers)) {
-            $requestOptions['headers'] = $headers;
-        }
-        $method = $request->getMethod();
-        $uri = $request->getUri();
-        foreach ($this->headers as $name => $value) {
-            $requestOptions['headers'][$name] = $value;
-        }
-      
-        try {
-            $response = $this->getClient()->request($method, $uri, $requestOptions);
-        } catch (RequestException $e) {
-            $response = $e->getResponse();
-            if (null === $response) {
-                throw $e;
-            }
-        }
-        return $this->createResponse($response);
-    }
-    
-    /**
-     * RequestClient::createResponse()
-     * 
-     * @param mixed $response
-     * @return
-     */
-    protected function createResponse(ResponseInterface $response)
-    {
-        return new Response((string)$response->getBody()->getContents(), $response->getStatusCode(), $response->getHeaders());
+        return $this->setHeader('User-Agent',$user);
     }
 }
