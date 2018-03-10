@@ -542,7 +542,7 @@ class HeadlessChrome
     protected function callBrowser($command)
     {
         $setNodePathCommand     = "NODE_PATH=`{$this->npmBinary} root -g`";
-        $binPath                = __DIR__.'/../bin/browser.js';
+        $binPath                = dirname(dirname(__DIR__)).'/bin/browser.js';
         $fullCommand            = "sudo ".$setIncludePathCommand.' '.$setNodePathCommand.' '.$this->nodeBinary.' '.escapeshellarg($binPath).' '.escapeshellarg(json_encode($command));
         $process                = (new Process($fullCommand))->setTimeout($this->timeout);
         $process->run();
