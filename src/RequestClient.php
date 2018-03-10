@@ -102,7 +102,7 @@ class RequestClient
     public static function testUris($content=null){
         if(!$content)
             return false;        
-        $crawler    = getDom($content);
+        $crawler    = getDomCrawler($content);
         $images     = $crawler->filterXpath('//img')->extract(['src','title','alt']);
         $links      = [];
         $links      = array_merge($links,$crawler->filterXpath('//a')->extract(['href','title','alt']));
