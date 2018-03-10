@@ -53,8 +53,8 @@ class RequestClient
      * 
      * @return
      */
-    public static function make(){
-        return new static();
+    public static function make($options = []){
+        return new static($options);
     }
     
     /**
