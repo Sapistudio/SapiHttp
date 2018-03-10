@@ -43,6 +43,17 @@ class HeadlessChrome
     {
         return (new static)->setUrl($url);
     }
+    
+    /**
+     * ChromeClient::file()
+     * 
+     * @param mixed $filePath
+     * @return
+     */
+    public static function file($filePath)
+    {
+        return (new static)->setFile($filePath);
+    }
 
     /**
      * ChromeClient::html()
