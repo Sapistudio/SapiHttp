@@ -4,6 +4,22 @@ use \Mobile_Detect;
 
 class DeviceDetector extends Mobile_Detect
 {
+    
+    /**
+     * DeviceDetector::uAgent()
+     * 
+     * @return
+     */
+    public static function uAgent($userAgent)
+    {
+        return (new static)->setUserAgent($userAgent);
+    }
+    
+    /**
+     * DeviceDetector::__construct()
+     * 
+     * @return
+     */
     public function __construct($userAgent = "")
     {
         if ($userAgent != "") {
@@ -12,12 +28,9 @@ class DeviceDetector extends Mobile_Detect
     }
 
     /**
-     * Get current device's browser.
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return string Device's browser.
+     * DeviceDetector::getBrowser()
+     * 
+     * @return
      */
     public function getBrowser()
     {
@@ -29,13 +42,11 @@ class DeviceDetector extends Mobile_Detect
         }
         return '';
     }
+    
     /**
-     * Get current device's operating system.
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return string Device's OS.
+     * DeviceDetector::getOperatingSystem()
+     * 
+     * @return
      */
     public function getOperatingSystem()
     {
@@ -47,13 +58,11 @@ class DeviceDetector extends Mobile_Detect
         }
         return '';
     }
+    
     /**
-     * Get current device brand/manufacturer.
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return string Device type.
+     * DeviceDetector::getDevice()
+     * 
+     * @return
      */
     public function getDevice()
     {
@@ -66,37 +75,31 @@ class DeviceDetector extends Mobile_Detect
         }
         return '';
     }
+    
     /**
-     * All device brands/manufacturers.
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return array Devices.
+     * DeviceDetector::getDevices()
+     * 
+     * @return
      */
     public function getDevices()
     {
         return \array_merge($this::$phoneDevices, $this::$tabletDevices);
     }
+    
     /**
-     * Is device a phone
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return bool
+     * DeviceDetector::isPhone()
+     * 
+     * @return
      */
     public function isPhone()
     {
         return \array_key_exists($this->getDevice(), $this::$phoneDevices);
     }
+    
     /**
-     * Is device a smart device?
-     *
-     * @since 0.1.0
-     * @access public
-     *
-     * @return bool
+     * DeviceDetector::isSmart()
+     * 
+     * @return
      */
     public function isSmart()
     {
