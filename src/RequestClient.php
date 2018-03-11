@@ -7,6 +7,14 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Promise;
 
+/** this is for browser kit use*/
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
+use Symfony\Component\BrowserKit\Client as BaseClient;
+use Symfony\Component\BrowserKit\Request;
+use Symfony\Component\BrowserKit\Response;
+use Psr\Http\Message\ResponseInterface;
+
 
 /**
  * RequestClient
