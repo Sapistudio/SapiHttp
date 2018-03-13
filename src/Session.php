@@ -28,17 +28,16 @@ class Session implements SessionHandlerInterface
     }
 
     /**
-     * Session::getInstance()
+     * Session::destroy()
      * 
      * @return
      */
-    public static function getInstance()
-    {
-        if (null === static::$instance)
-            static::$instance = new static();
-        return static::$instance;
+    public static function clearSession(){
+        self::$instance->sessionHandler->invalidate();
+        session_destroy();
+        return true;
     }
-
+    
     /**
      * Session::globalise()
      * 
@@ -46,13 +45,13 @@ class Session implements SessionHandlerInterface
      */
     public function globalise($alias = null)
     {
-        if (is_null($alias))
-            return false;
-        if (substr($alias, 0, 1) != '\\')
-            $alias = '\\' . $alias;
-        if (class_exists($alias))
-            throw new \Exception('Class already exists!');
-        class_alias(get_class($this), $alias);
+        if (!is_null($alias)){
+            if (substr($alias, 0, 1) != '\\')
+                $alias = '\\' . $alias;
+            if (class_exists($alias))
+                throw new \Exception('Class already exists!');
+            class_alias(get_class($this), $alias);
+        }
         self::$instance = $this;
     }
 
@@ -78,7 +77,7 @@ class Session implements SessionHandlerInterface
     {
         if (empty(self::$instance))
             throw new \Exception('You need to run globalise first!');
-        return call_user_func_array([self::$instance, $name], $args);
+        return call_user_func_array([self::$instance,$name], $args);
     }
 
     /**
