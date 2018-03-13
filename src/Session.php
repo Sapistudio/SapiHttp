@@ -1,5 +1,5 @@
 <?php
-namespace Sapi;
+namespace SapiStudio\Http;
 
 use SessionHandlerInterface;
 use Illuminate\Session\Store;
