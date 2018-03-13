@@ -6,16 +6,6 @@ use Illuminate\Session\Store;
 use Illuminate\Session\FileSessionHandler;
 use Illuminate\Filesystem\Filesystem;
 
-
-/**
- * @class Session
- * @package SAPI Framework
- * @author Laurentiu Sandu
- * @copyright SAPI Studio
- * @version 5.rb 2012
- * @path libraries/classes/base/Session.php
- * @access public
- */
 class Session implements SessionHandlerInterface
 {
     protected $sessionHandler;
@@ -30,8 +20,7 @@ class Session implements SessionHandlerInterface
      */
     public function __construct($argument = null)
     {
-        //$this->config = require __dir__ . DIRECTORY_SEPARATOR . 'config.php';
-        $this->config = \Sapi\Config::getConfig('session');
+        $this->config = require __dir__.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'config.php';
         if (is_array($argument))
             $this->setConfig($argument);
         return $this->dispatch();
