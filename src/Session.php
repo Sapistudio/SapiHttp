@@ -64,8 +64,9 @@ class Session implements SessionHandlerInterface
     public function __call($name, $arguments)
     {
         $this->checkIntegrity();
-        call_user_func_array([$this->sessionHandler, $name], $arguments);
-        return $_SESSION = array_replace_recursive($_SESSION, $this->sessionHandler->all());
+        $return = call_user_func_array([$this->sessionHandler, $name], $arguments);
+        $_SESSION = array_replace_recursive($_SESSION, $this->sessionHandler->all());
+        return $return;
     }
 
     /**
@@ -143,8 +144,6 @@ class Session implements SessionHandlerInterface
      */
     protected function initiatePhpSession()
     {
-        if (version_compare(PHP_VERSION, '5.2.0') >= 0)
-            session_set_cookie_params((int)ini_get('session.cookie_lifetime'), null, null, null, true);
         ini_set('session.serialize_handler','php_serialize');
         session_id($this->sessionId);
         session_set_save_handler($this, true);
