@@ -33,8 +33,9 @@ class Session implements SessionHandlerInterface
      * @return
      */
     public static function clearSession(){
-        self::$instance->sessionHandler->invalidate();
         session_destroy();
+        self::$instance->invalidate();
+        setcookie(self::$instance->getName(), self::$instance->getId(), time() - 3600 ,'/');
         return true;
     }
     
@@ -125,7 +126,6 @@ class Session implements SessionHandlerInterface
         $name = $this->sessionHandler->getName();
         if (isset($_COOKIE[$name]) && $sessionId = $_COOKIE[$name]) {
             $this->sessionHandler->setId($sessionId);
-            $this->sessionId = $sessionId;
         } elseif (!isset($_COOKIE[$name])) {
             setcookie($name, $this->getId(), time() + 60 * $this->config['lifetime'], $this->config['path'], $this->config['domain'], $this->config['secure'], $this->config['http_only']);
         }
@@ -144,7 +144,7 @@ class Session implements SessionHandlerInterface
     protected function initiatePhpSession()
     {
         ini_set('session.serialize_handler','php_serialize');
-        session_id($this->sessionId);
+        session_id($this->getId());
         session_set_save_handler($this, true);
         session_start();
     }
