@@ -17,7 +17,6 @@ class HeadlessChrome
     protected $deviceScaleFactor    = 1;
     protected $format               = null;
     protected $fullPage             = false;
-    protected $html                 = '';
     protected $landscape            = false;
     protected $margins              = null;
     protected $noSandbox            = true;
@@ -26,50 +25,36 @@ class HeadlessChrome
     protected $paperWidth           = 0;
     protected $showBackground       = false;
     protected $showBrowserHeaderAndFooter = false;
-    protected $temporaryHtmlDirectory;
     protected $timeout              = 60;
     protected $url                  = '';
     protected $userAgent            = '';
     protected $windowHeight         = 1200;
     protected $windowWidth          = 1920;
 
+   
     /**
-     * ChromeClient::url()
+     * HeadlessChrome::loadUrl()
      * 
-     * @param mixed $url
      * @return
      */
-    public static function url($url)
+    public static function loadUrl($url)
     {
         return (new static)->setUrl($url);
     }
     
     /**
-     * ChromeClient::file()
+     * HeadlessChrome::loadFile()
      * 
-     * @param mixed $filePath
      * @return
      */
-    public static function file($filePath)
+    public static function loadFile($filePath)
     {
         return (new static)->setFile($filePath);
     }
 
     /**
-     * ChromeClient::html()
+     * HeadlessChrome::__construct()
      * 
-     * @param mixed $html
-     * @return
-     */
-    public static function html($html)
-    {
-        return (new static)->setHtml($html);
-    }
-
-    /**
-     * ChromeClient::__construct()
-     * 
-     * @param mixed $url
      * @return
      */
     public function __construct($url = NULL)
@@ -78,9 +63,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::setNodeBinary()
+     * HeadlessChrome::setNodeBinary()
      * 
-     * @param mixed $nodeBinary
      * @return
      */
     public function setNodeBinary($nodeBinary = NULL)
@@ -90,9 +74,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::setNpmBinary()
+     * HeadlessChrome::setNpmBinary()
      * 
-     * @param mixed $npmBinary
      * @return
      */
     public function setNpmBinary($npmBinary = NULL)
@@ -102,9 +85,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::setIncludePath()
+     * HeadlessChrome::setIncludePath()
      * 
-     * @param mixed $includePath
      * @return
      */
     public function setIncludePath($includePath = NULL)
@@ -114,9 +96,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::setNetworkIdleTimeout()
+     * HeadlessChrome::setNetworkIdleTimeout()
      * 
-     * @param mixed $networkIdleTimeout
      * @return
      */
     public function setNetworkIdleTimeout(int $networkIdleTimeout = NULL)
@@ -126,52 +107,30 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::setUrl()
+     * HeadlessChrome::setUrl()
      * 
-     * @param mixed $url
      * @return
      */
     public function setUrl($url = NULL)
     {
         $this->url = $url;
-        $this->html = '';
         return $this;
     }
-    
+  
     /**
-     * ChromeClient::setFile()
+     * HeadlessChrome::setFile()
      * 
-     * @param mixed $file
      * @return
      */
     public function setFile($file = NULL)
     {
         $this->url = "file://{$file}";;
-        $this->html = '';
         return $this;
     }
 
     /**
-     * ChromeClient::setHtml()
+     * HeadlessChrome::clip()
      * 
-     * @param mixed $html
-     * @return
-     */
-    public function setHtml($html = NULL)
-    {
-        $this->html = $html;
-        $this->url = '';
-        $this->hideBrowserHeaderAndFooter();
-        return $this;
-    }
-
-    /**
-     * ChromeClient::clip()
-     * 
-     * @param mixed $x
-     * @param mixed $y
-     * @param mixed $width
-     * @param mixed $height
      * @return
      */
     public function clip(int $x, int $y, int $width, int $height)
@@ -181,7 +140,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::showBrowserHeaderAndFooter()
+     * HeadlessChrome::showBrowserHeaderAndFooter()
      * 
      * @return
      */
@@ -192,7 +151,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::hideBrowserHeaderAndFooter()
+     * HeadlessChrome::hideBrowserHeaderAndFooter()
      * 
      * @return
      */
@@ -203,9 +162,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::deviceScaleFactor()
+     * HeadlessChrome::deviceScaleFactor()
      * 
-     * @param mixed $deviceScaleFactor
      * @return
      */
     public function deviceScaleFactor($deviceScaleFactor)
@@ -216,7 +174,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::fullPage()
+     * HeadlessChrome::fullPage()
      * 
      * @return
      */
@@ -227,7 +185,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::showBackground()
+     * HeadlessChrome::showBackground()
      * 
      * @return
      */
@@ -238,7 +196,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::hideBackground()
+     * HeadlessChrome::hideBackground()
      * 
      * @return
      */
@@ -249,9 +207,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::landscape()
+     * HeadlessChrome::landscape()
      * 
-     * @param bool $landscape
      * @return
      */
     public function landscape($landscape = true)
@@ -261,12 +218,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::margins()
+     * HeadlessChrome::margins()
      * 
-     * @param mixed $top
-     * @param mixed $right
-     * @param mixed $bottom
-     * @param mixed $left
      * @return
      */
     public function margins(int $top, int $right, int $bottom, int $left)
@@ -276,7 +229,7 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::noSandbox()
+     * HeadlessChrome::noSandbox()
      * 
      * @return
      */
@@ -287,9 +240,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::pages()
+     * HeadlessChrome::pages()
      * 
-     * @param mixed $pages
      * @return
      */
     public function pages($pages)
@@ -299,10 +251,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::paperSize()
+     * HeadlessChrome::paperSize()
      * 
-     * @param mixed $width
-     * @param mixed $height
      * @return
      */
     public function paperSize($width,$height)
@@ -313,9 +263,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::format()
+     * HeadlessChrome::format()
      * 
-     * @param mixed $format
      * @return
      */
     public function format($format)
@@ -325,9 +274,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::timeout()
+     * HeadlessChrome::timeout()
      * 
-     * @param mixed $timeout
      * @return
      */
     public function timeout($timeout)
@@ -337,9 +285,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::userAgent()
+     * HeadlessChrome::userAgent()
      * 
-     * @param mixed $userAgent
      * @return
      */
     public function userAgent($userAgent)
@@ -349,10 +296,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::windowSize()
+     * HeadlessChrome::windowSize()
      * 
-     * @param mixed $width
-     * @param mixed $height
      * @return
      */
     public function windowSize($width,$height)
@@ -361,74 +306,54 @@ class HeadlessChrome
         $this->windowHeight = $height;
         return $this;
     }
-
+    
     /**
-     * ChromeClient::save()
+     * HeadlessChrome::savePdf()
      * 
-     * @param mixed $targetPath
-     * @return
-     */
-    public function save($targetPath)
-    {
-        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'pdf') {
-            return $this->savePdf($targetPath);
-        }
-        $command = $this->createScreenshotCommand($targetPath);
-        $this->callBrowser($command);
-        $this->cleanupTemporaryHtmlFile();
-        if (! file_exists($targetPath)) {
-            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath);
-        }
-    }
-
-    /**
-     * ChromeClient::bodyHtml()
-     * 
-     * @return
-     */
-    public function bodyHtml()
-    {
-        $command = $this->createBodyHtmlCommand();
-        return $this->callBrowser($command);
-    }
-
-    /**
-     * ChromeClient::savePdf()
-     * 
-     * @param mixed $targetPath
      * @return
      */
     public function savePdf($targetPath)
     {
-        $command = $this->createPdfCommand($targetPath);
-        $this->callBrowser($command);
-        $this->cleanupTemporaryHtmlFile();
+        $this->callBrowser($this->createPdfCommand($targetPath));
+        if (! file_exists($targetPath)) {
+            throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath);
+        }
+    }
+    
+    /**
+     * HeadlessChrome::savePrintScreen()
+     * 
+     * @return
+     */
+    public function savePrintScreen($targetPath)
+    {
+        if (strtolower(pathinfo($targetPath, PATHINFO_EXTENSION)) === 'pdf') {
+            return $this->savePdf($targetPath);
+        }
+        $this->callBrowser($this->createScreenshotCommand($targetPath));
         if (! file_exists($targetPath)) {
             throw CouldNotTakeBrowsershot::chromeOutputEmpty($targetPath);
         }
     }
 
     /**
-     * ChromeClient::createBodyHtmlCommand()
+     * HeadlessChrome::getBodyHtml()
      * 
      * @return
      */
-    public function createBodyHtmlCommand()
+    public function getBodyHtml()
     {
-        $url = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
-        return $this->createCommand($url, 'content');
+        return $this->callBrowser($this->createCommand($this->url, 'content'));
     }
 
     /**
-     * ChromeClient::createScreenshotCommand()
+     * HeadlessChrome::createScreenshotCommand()
      * 
-     * @param mixed $targetPath
      * @return
      */
     public function createScreenshotCommand($targetPath)
     {
-        $url        = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
-        $command    = $this->createCommand($url, 'screenshot', ['path' => $targetPath]);
+        $command    = $this->createCommand($this->url, 'screenshot', ['path' => $targetPath]);
         if ($this->fullPage) {
             $command['options']['fullPage'] = true;
         }
@@ -439,15 +364,13 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::createPdfCommand()
+     * HeadlessChrome::createPdfCommand()
      * 
-     * @param mixed $targetPath
      * @return
      */
     public function createPdfCommand($targetPath)
     {
-        $url        = $this->html ? $this->createTemporaryHtmlFile() : $this->url;
-        $command    = $this->createCommand($url, 'pdf', ['path' => $targetPath]);
+        $command    = $this->createCommand($this->url, 'pdf', ['path' => $targetPath]);
         if ($this->showBrowserHeaderAndFooter) {
             $command['options']['displayHeaderFooter'] = true;
         }
@@ -479,11 +402,8 @@ class HeadlessChrome
     }
 
     /**
-     * ChromeClient::createCommand()
+     * HeadlessChrome::createCommand()
      * 
-     * @param mixed $url
-     * @param mixed $action
-     * @param mixed $options
      * @return
      */
     protected function createCommand($url,$action,$options = [])
@@ -508,35 +428,10 @@ class HeadlessChrome
         }
         return $command;
     }
-
+  
     /**
-     * ChromeClient::createTemporaryHtmlFile()
+     * HeadlessChrome::callBrowser()
      * 
-     * @return
-     */
-    protected function createTemporaryHtmlFile()
-    {
-        $this->temporaryHtmlDirectory = (new TemporaryDirectory())->create();
-        file_put_contents($temporaryHtmlFile = $this->temporaryHtmlDirectory->path('index.html'), $this->html);
-        return "file://{$temporaryHtmlFile}";
-    }
-
-    /**
-     * ChromeClient::cleanupTemporaryHtmlFile()
-     * 
-     * @return
-     */
-    protected function cleanupTemporaryHtmlFile()
-    {
-        if ($this->temporaryHtmlDirectory) {
-            $this->temporaryHtmlDirectory->delete();
-        }
-    }
-    
-    /**
-     * ChromeClient::callBrowser()
-     * 
-     * @param mixed $command
      * @return
      */
     protected function callBrowser($command)
@@ -549,6 +444,11 @@ class HeadlessChrome
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
-        return $process->getOutput();
+        $response = json_decode($process->getOutput());
+        if(!$response && !isset($response->response))
+            return false;
+        if(isset($response->response->error))
+            throw new \Exception($response->response->error);
+        return $response;
     }
 }
