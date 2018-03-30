@@ -1,49 +1,47 @@
 <?php
-namespace SapiStudio\Http;
+namespace SapiStudio\Http\Html;
 
-use DOMDocument;
-use DOMXPath;
-use exception;
-use Sabberworm\CSS;
-use Symfony\Component\CssSelector\CssSelectorConverter;
+use Exception;
+use SapiStudio\Http\Html as Handler;
 
-/** a fork after Northys\CSSInliner : https://github.com/northys/CSS-Inliner.git*/
-class Inliner
+class Extractor extends Handler
 {
-    private $css;
-    private $domCrawler;
-
+    protected $elementsToSearch = null;
+    protected $parsedElements   = [];
+    
     /**
-     * Inliner::addCSS()
+     * Extractor::filterElements()
      * 
      * @return
      */
-    public function addCSS($filename)
-    {
-        if (($css = @file_get_contents($filename)) === false) {
-            throw new \Exception('Invalid css file path provided.');
+    public function filterElements($elements){
+        $this->elementsToSearch = is_array($elements) ? $elements : [$elements];
+        foreach($this->elementsToSearch as $key=>$elementName){
+            $this->parseElement($elementName);
         }
-        $this->css .= $css;
     }
-
+    
     /**
-     * Inliner::getCSS()
+     * Extractor::parseElement()
      * 
      * @return
      */
-    private function getCSS()
-    {
-        $this->domCrawler->filter('style')->each(function ($crawler){$this->css .= $crawler->text();foreach ($crawler as $node){$node->parentNode->removeChild($node);}});
-        $parser = new CSS\Parser($this->css);
-        $css = $parser->parse();
-        if(!$css){
-            throw new \Exception('There are no CSS rules provided.');
-        }
-        return $css;
+    protected function parseElement($element){
+        $parsed = [];
+        $this->domCrawler->filterXpath('//'.$element)->each(function($elementCrawler) use (&$parsed){
+            foreach($elementCrawler->getNode(0)->attributes as $attr) {
+                $elementAttributes[$attr->nodeName]= $attr->nodeValue;
+            }
+            $parsed[$elementCrawler->getNode(0)->nodeName]['attributes'] = $elementAttributes;
+            $values = $elementCrawler->children()->each(function ($node) use (&$parsed){
+            $parsed[$elementCrawler->getNode(0)->nodeName]['values'][] = $node->html();
+            });
+        });
+        $this->parsedElements = array_merge($this->parsedElements,$parsed);
     }
 
     /**
-     * Inliner::render()
+     * Extractor::render()
      * 
      * @return
      */
