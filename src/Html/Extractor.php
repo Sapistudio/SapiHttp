@@ -19,6 +19,7 @@ class Extractor extends Handler
         foreach($this->elementsToSearch as $key=>$elementName){
             $this->parseElement($elementName);
         }
+        return $this->parsedElements;
     }
     
     /**
@@ -29,12 +30,15 @@ class Extractor extends Handler
     protected function parseElement($element){
         $parsed = [];
         $this->domCrawler->filterXpath('//'.$element)->each(function($elementCrawler) use (&$parsed){
+            $elementName = $elementCrawler->getNode(0)->nodeName;
             foreach($elementCrawler->getNode(0)->attributes as $attr) {
                 $elementAttributes[$attr->nodeName]= $attr->nodeValue;
             }
-            $parsed[$elementCrawler->getNode(0)->nodeName]['attributes'] = $elementAttributes;
-            $values = $elementCrawler->children()->each(function ($node) use (&$parsed){
-            $parsed[$elementCrawler->getNode(0)->nodeName]['values'][] = $node->html();
+            $parsed[$elementName]['attributes'] = $elementAttributes;
+            $values = $elementCrawler->children()->each(function ($crawlerNode) use (&$parsed,$elementName){
+                foreach($crawlerNode->getNode(0)->attributes as $attr)
+                    $crawlerNodeAttributes[$attr->nodeName]= $attr->nodeValue;
+                $parsed[$elementName]['values'][] = ['html'=>$crawlerNode->html(),'parentName'=>$crawlerNode->getNode(0)->nodeName,'parentAttributes'=>$crawlerNodeAttributes];
             });
         });
         $this->parsedElements = array_merge($this->parsedElements,$parsed);
