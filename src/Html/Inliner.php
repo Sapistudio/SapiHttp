@@ -1,6 +1,7 @@
 <?php
-namespace SapiStudio\Http;
+namespace SapiStudio\Http\Html;
 
+use SapiStudio\Http\Html as Handler;
 use DOMDocument;
 use DOMXPath;
 use exception;
@@ -8,10 +9,9 @@ use Sabberworm\CSS;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 
 /** a fork after Northys\CSSInliner : https://github.com/northys/CSS-Inliner.git*/
-class Inliner
+class Inliner extends Handler
 {
     private $css;
-    private $domCrawler;
 
     /**
      * Inliner::addCSS()
@@ -47,10 +47,9 @@ class Inliner
      * 
      * @return
      */
-    public function render($html)
+    public function render()
     {
         $converter          = new CssSelectorConverter();
-        $this->domCrawler   = getDomCrawler($html);
         $this->css          = $this->getCSS();
         foreach ($this->css->getAllRuleSets() as $ruleSet) {
             $selector = $ruleSet->getSelector();
