@@ -7,8 +7,6 @@ class Html
 {
     protected $htmlDom;
     protected $domCrawler;
-    protected $elementsToSearch = null;
-    protected $parsedElements   = [];
     
     /**
      * Html::loadHtml()
