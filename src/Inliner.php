@@ -7,12 +7,11 @@ use exception;
 use Sabberworm\CSS;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 
+/** a fork after Northys\CSSInliner : https://github.com/northys/CSS-Inliner.git*/
 class Inliner
 {
     private $css;
-    private $dom;
-    private $finder;
-
+    private $domCrawler;
 
     /**
      * Inliner::addCSS()
