@@ -12,7 +12,9 @@ class DeviceDetector extends Mobile_Detect
      */
     public static function uAgent($userAgent)
     {
-        return (new static)->setUserAgent($userAgent);
+        $self= (new static);
+        $self->setUserAgent($userAgent);
+        return $self;
     }
     
     /**
