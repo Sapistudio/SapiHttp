@@ -35,9 +35,12 @@ const callChrome    = async () => {
                 );
         }
         let httpResponse = await page.goto(request.url, requestOptions);
-        await page[request.action](request.options);
+        const htmlCode = await page[request.action](request.options);
         returnOptions.response.status   = httpResponse.status();
         returnOptions.response.url      = request.url;
+        if(request.action =='content'){
+            returnOptions.response.htmlCode = htmlCode;
+        }
         console.log(JSON.stringify(returnOptions));
         await browser.close();
     } catch (exception) {
