@@ -166,9 +166,10 @@ class CurlClient
             foreach($results as $promiseIndex=>$promiseResponse){
                 $response = $promiseResponse['value'];
                 $linkHash = md5($urlLinks[$promiseIndex]);
-                $this->validatedLinks[$linkHash]['isAlive']        = ($response) ? true : false;
-                $this->validatedLinks[$linkHash]['isImage']        = ($response) ? self::urlIsImage($response->getHeaderLine('content-type')) : false;
-                $this->validatedLinks[$linkHash]['contentType']    = ($response) ? $response->getHeaderLine('content-type') : false;
+                $this->validatedLinks[$linkHash]['isAlive']     = ($response) ? true : false;
+                $this->validatedLinks[$linkHash]['url']         = $urlLinks[$promiseIndex];
+                $this->validatedLinks[$linkHash]['isImage']     = ($response) ? self::urlIsImage($response->getHeaderLine('content-type')) : false;
+                $this->validatedLinks[$linkHash]['contentType'] = ($response) ? $response->getHeaderLine('content-type') : false;
             }
         }
         return $this->validatedLinks;
