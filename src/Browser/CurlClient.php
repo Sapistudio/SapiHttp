@@ -104,48 +104,16 @@ class CurlClient
      */
     public static function testUris($content=null){
         if(!$content)
-            return false;        
-        $crawler    = getDomCrawler($content);
-        $images     = $crawler->filterXpath('//img')->extract(['src','title','alt']);
-        $links      = [];
-        $links      = array_merge($links,$crawler->filterXpath('//a')->extract(['href','title','alt']));
-        $links      = array_merge($links,$crawler->filterXpath('//area')->extract(['href','title','alt']));
+            return false;
+        if(is_array($content))
+            return (new static())->validateLinks($content);
+        $crawler    = \SapiStudio\Http\Html::loadHtml($content);
+        $images     = $crawler->getDomImages();
+        $links      = $crawler->getAllLinks();
         array_walk($links, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['href','title','alt'],$val);});
         array_walk($images, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['src','title','alt'],$val);});
         return array_merge_recursive((new static())->validateLinks(array_merge(array_column($extracted, 'href'),array_column($extracted, 'src'))),$extracted);
     }
-    
-    /**
-     * CurlClient::isValidURL()
-     * 
-     * @param mixed $url
-     * @return
-     */
-    public static function isValidURL($url){
-        return preg_match('/^(http|https):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i' ,$url);
-    }
-    
-    /**
-     * CurlClient::urlIsImage()
-     * 
-     * @param mixed $contentType
-     * @return
-     */
-    public function urlIsImage($contentType){
-        switch ($contentType) {
-            case 'image/png' :
-            case 'image/jpg' :
-            case 'image/jpeg':
-            case 'image/gif' :
-                $urlIsImage = true;
-            break;
-        default:
-                $urlIsImage = false;
-          break;
-      }
-      return $urlIsImage;
-    }
-    
    
     /**
      * CurlClient::validateLinks()
@@ -157,8 +125,8 @@ class CurlClient
         if(!is_array($urlLinks))
             return false;
         foreach($urlLinks as $keyLink=>$Link){
-            if(self::isValidURL($Link)){
-                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'mailerTesting'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14]);
+            if(\SapiStudio\Http\Html::isValidURL($Link)){
+                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'SapiHttpTestLinks'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14]);
             }
         }
         $results = Promise\settle($promises)->wait();
@@ -168,7 +136,7 @@ class CurlClient
                 $linkHash = md5($urlLinks[$promiseIndex]);
                 $this->validatedLinks[$linkHash]['isAlive']     = ($response) ? true : false;
                 $this->validatedLinks[$linkHash]['url']         = $urlLinks[$promiseIndex];
-                $this->validatedLinks[$linkHash]['isImage']     = ($response) ? self::urlIsImage($response->getHeaderLine('content-type')) : false;
+                $this->validatedLinks[$linkHash]['isImage']     = ($response) ? \SapiStudio\Http\Html::urlIsImage($response->getHeaderLine('content-type')) : false;
                 $this->validatedLinks[$linkHash]['contentType'] = ($response) ? $response->getHeaderLine('content-type') : false;
             }
         }
