@@ -105,24 +105,6 @@ class CurlClient
         }
         return $this->httpClient;
     }
-    
-    /**
-     * CurlClient::testUris()
-     * 
-     * @param mixed $content
-     * @return
-     */
-    public static function testUris($content=null){
-        if(!$content)
-            return false;
-        if(is_array($content))
-            return (new static())->validateLinks($content);
-        $crawler    = \SapiStudio\Http\Html::loadHtml($content);
-        $images     = $crawler->getDomImages();
-        $links      = $crawler->getAllLinks();
-        $toCheck    = array_merge($images,$links);
-        return array_merge_recursive((new static())->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
-    }
    
     /**
      * CurlClient::validateLinks()
