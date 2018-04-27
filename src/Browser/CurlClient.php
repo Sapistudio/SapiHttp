@@ -110,9 +110,8 @@ class CurlClient
         $crawler    = \SapiStudio\Http\Html::loadHtml($content);
         $images     = $crawler->getDomImages();
         $links      = $crawler->getAllLinks();
-        array_walk($links, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['href','title','alt'],$val);});
-        array_walk($images, function(&$val) use (&$extracted){$extracted[md5($val[0])] = array_combine(['src','title','alt'],$val);});
-        return array_merge_recursive((new static())->validateLinks(array_merge(array_column($extracted, 'href'),array_column($extracted, 'src'))),$extracted);
+        $toCheck    = array_merge($images,$links);
+        return array_merge_recursive((new static())->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
     }
    
     /**
