@@ -21,8 +21,8 @@ class CurlClient
 {
     protected $httpClient;
     private $headers        = [];
-    private $defaultOptions = [];
     private $currentUrl     = null;
+    protected static $validateTestHeaders = ['headers' => ['User-Agent' => 'SapiHttpTestLinks'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14];
     
     /**
      * CurlClient::__call()
@@ -70,14 +70,22 @@ class CurlClient
     }
     
     /**
+     * CurlClient::make()
+     * 
+     * @return
+     */
+    public static function makeToTest($options = []){
+        return new static(array_merge_recursive(self::$validateTestHeaders,$options));
+    }
+    
+    /**
      * CurlClient::__construct()
      * 
      * @param mixed $options
      * @return
      */
     private function __construct($options = []){
-        $this->defaultOptions = ['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()];
-        $this->setClient(new GuzzleClient(array_merge($this->defaultOptions,$options)));
+        $this->setClient(new GuzzleClient(array_merge(['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()],$options)));
         return $this;
     }
     
@@ -100,9 +108,8 @@ class CurlClient
      */
     public function getClient()
     {
-        if (!$this->httpClient) {
+        if (!$this->httpClient)
             throw new \Exception('Invalid client');
-        }
         return $this->httpClient;
     }
    
@@ -117,7 +124,7 @@ class CurlClient
             return false;
         foreach($urlLinks as $keyLink=>$Link){
             if(\SapiStudio\Http\Html::isValidURL($Link)){
-                $promises[$keyLink] = $this->headAsync($Link,['headers' => ['User-Agent' => 'SapiHttpTestLinks'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14]);
+                $promises[$keyLink] = $this->headAsync($Link,self::$validateTestHeaders);
             }
         }
         $results = Promise\settle($promises)->wait();
