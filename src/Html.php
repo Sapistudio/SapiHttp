@@ -1,6 +1,7 @@
 <?php
 namespace SapiStudio\Http;
 
+use SapiStudio\Http\Browser\CurlClient;
 use Exception;
 
 class Html
@@ -27,6 +28,24 @@ class Html
     public function __construct($html=''){
         $this->htmlDom      = $html;
         $this->domCrawler   = getDomCrawler($html);
+    }
+    
+    /**
+     * Html::testUris()
+     * 
+     * @param mixed $content
+     * @return
+     */
+    public static function testUris($content=null){
+        if(!$content)
+            return false;
+        if(is_array($content))
+            return CurlClient::make()->validateLinks($content);
+        $crawler    = self::loadHtml($content);
+        $images     = $crawler->getDomImages();
+        $links      = $crawler->getAllLinks();
+        $toCheck    = array_merge($images,$links);
+        return array_merge_recursive(CurlClient::make()->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
     }
     
     /**
