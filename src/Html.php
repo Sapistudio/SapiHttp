@@ -7,6 +7,8 @@ class Html
 {
     protected $htmlDom;
     protected $domCrawler;
+    protected static $urlLinkAttributes     = ['href','title','alt'];
+    protected static $urlImageAttributes    = ['src','title','alt'];
     
     /**
      * Html::loadHtml()
@@ -33,8 +35,9 @@ class Html
      * @param mixed $imagesAttributes
      * @return
      */
-    public function getDomImages($imagesAttributes = ['src','title','alt']){
-        return $this->domCrawler->filterXpath('//img')->extract($imagesAttributes);
+    public function getDomImages($imagesAttributes = []){
+        $attributes = array_merge(self::$urlImageAttributes,$imagesAttributes);
+        return self::attributesBeautifier($this->domCrawler->filterXpath('//img')->extract($attributes),$attributes);
     }
     
     /**
@@ -43,8 +46,9 @@ class Html
      * @param mixed $urisAttributes
      * @return
      */
-    public function getDomUris($urisAttributes = ['href','title','alt']){
-        return $this->domCrawler->filterXpath('//a')->extract($urisAttributes);
+    public function getDomUris($urisAttributes = []){
+        $attributes = array_merge(self::$urlLinkAttributes,$urisAttributes);
+        return self::attributesBeautifier($this->domCrawler->filterXpath('//a')->extract($attributes),$attributes);
     }
     
     /**
@@ -53,8 +57,9 @@ class Html
      * @param mixed $areasAttributes
      * @return
      */
-    public function getDomAreas($areasAttributes = ['href','title','alt']){
-        return $this->domCrawler->filterXpath('//area')->extract($areasAttributes);
+    public function getDomAreas($areasAttributes = []){
+        $attributes = array_merge(self::$urlLinkAttributes,$areasAttributes);
+        return self::attributesBeautifier($this->domCrawler->filterXpath('//area')->extract($attributes),$attributes);
     }
     
     /**
@@ -64,6 +69,19 @@ class Html
      */
     public function getAllLinks(){
         return array_merge($this->getDomUris(),$this->getDomAreas());
+    }
+    
+    /**
+     * Html::attributesBeautifier()
+     * 
+     * @param mixed $arrayData
+     * @param mixed $arrayAttributes
+     * @return void
+     */
+    public static function attributesBeautifier($arrayData = [],$arrayAttributes = []){
+        $beautified = [];
+        array_walk($arrayData, function(&$val) use (&$beautified,$arrayAttributes){$beautified[md5($val[0])] = array_combine($arrayAttributes,$val);});
+        return $beautified;
     }
     
     /**
