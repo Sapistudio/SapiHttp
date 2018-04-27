@@ -31,15 +31,14 @@ class CurlClient
      * @param mixed $arguments
      * @return
      */
-    public function __call($name, $arguments)
+    public function __call($name,$arguments)
     {
-        if (count($arguments) < 1) {
+        if (count($arguments) < 1)
             return $this->getClient()->$name(...$arguments);
-        }
         $this->currentUrl   = $arguments[0];
         $options = isset($arguments[1]) ? $arguments[1] : [];
         if($this->headers)
-            $options = array_merge_recursive ($options,['headers'=>$this->headers]);
+            $options = array_merge_recursive($options,['headers'=>$this->headers]);
         try {
             return $this->getClient()->$name($this->currentUrl,$options);
         } catch (RequestException $e) {
@@ -48,6 +47,17 @@ class CurlClient
                 throw $e;
             }
         }
+    }
+    
+    /**
+     * CurlClient::getResponse()
+     * 
+     * @param mixed $url
+     * @param mixed $arguments
+     * @return
+     */
+    public function getResponse($url,$arguments=null){
+        return $this->get($url,$arguments)->getBody()->getContents();
     }
     
     /**
