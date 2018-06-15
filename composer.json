@@ -9,6 +9,7 @@
         "symfony/process": "^3.4",
         "symfony/dom-crawler": "^3.4",
         "symfony/css-selector": "^3.4",
+        "symfony/cache": "^3.4",
         "sabberworm/php-css-parser": "^8.1"
     },
     "autoload": {
