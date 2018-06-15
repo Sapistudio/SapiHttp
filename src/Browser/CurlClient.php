@@ -8,6 +8,10 @@ use GuzzleHttp\Promise;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+
 /**
  * CurlClient
  * 
@@ -22,43 +26,9 @@ class CurlClient
     protected $httpClient;
     private $headers        = [];
     private $currentUrl     = null;
+    private $clientOptions  = [];
+    private $currentRequest = null;
     protected static $validateTestHeaders = ['headers' => ['User-Agent' => 'SapiHttpTestLinks'],'curl' => [CURLOPT_FOLLOWLOCATION => false],'allow_redirects'=>false, 'debug' => false,'connect_timeout' => 3.14];
-    
-    /**
-     * CurlClient::__call()
-     * 
-     * @param mixed $name
-     * @param mixed $arguments
-     * @return
-     */
-    public function __call($name,$arguments)
-    {
-        if (count($arguments) < 1)
-            return $this->getClient()->$name(...$arguments);
-        $this->currentUrl   = $arguments[0];
-        $options = isset($arguments[1]) ? $arguments[1] : [];
-        if($this->headers)
-            $options = array_merge_recursive($options,['headers'=>$this->headers]);
-        try {
-            return $this->getClient()->$name($this->currentUrl,$options);
-        } catch (RequestException $e) {
-            $response = $e->getResponse();
-            if (null === $response) {
-                throw $e;
-            }
-        }
-    }
-    
-    /**
-     * CurlClient::getResponse()
-     * 
-     * @param mixed $url
-     * @param mixed $arguments
-     * @return
-     */
-    public function getResponse($url,$arguments=null){
-        return $this->get($url,$arguments)->getBody()->getContents();
-    }
     
     /**
      * CurlClient::make()
@@ -79,13 +49,96 @@ class CurlClient
     }
     
     /**
+     * CurlClient::__call()
+     * 
+     * @param mixed $name
+     * @param mixed $arguments
+     * @return
+     */
+    public function __call($name,$arguments)
+    {
+        $this->currentRequest = null;
+        /** just url passed,no options*/
+        if (count($arguments) < 1){
+            $this->currentRequest = $this->getClient()->$name(...$arguments);
+            return $this->currentRequest;
+        }
+        $this->currentUrl   = $arguments[0];
+        $options = isset($arguments[1]) ? $arguments[1] : [];
+        $options = array_merge_recursive($this->clientOptions,$options);
+        if($this->headers)
+            $options = array_merge_recursive($options,['headers'=>$this->headers]);
+        $this->resetHeaders();
+        try {
+            $this->currentRequest = $this->getClient()->$name($this->currentUrl,$options);
+            return $this->currentRequest;
+        } catch (RequestException $e) {
+            $response = $e->getResponse();
+            if (null === $response) {
+                throw $e;
+            }
+        }
+    }
+    
+    /**
+     * CurlClient::getResponse()
+     * 
+     * @param mixed $url
+     * @param mixed $arguments
+     * @return
+     */
+    public function getResponse($url,$arguments=null){
+        return $this->get($url,$arguments)->getBody()->getContents();
+    }
+    
+    /**
+     * CurlClient::getRequestStatusCode()
+     * 
+     * @return
+     */
+    public function getRequestStatusCode(){
+        return $this->currentRequest->getStatusCode();
+    }
+    
+    /**
+     * CurlClient::getRequestHeader()
+     * 
+     * @param mixed $headerName
+     * @return
+     */
+    public function getRequestHeader($headerName = null){
+        return $this->currentRequest->getHeaderLine($headerName);
+    }
+    
+    /**
+     * CurlClient::cacheRequest()
+     * 
+     * @param mixed $token
+     * @return
+     */
+    public function cacheRequest($token=null){
+        return CacheRequest::init($this,$token);
+    }
+    
+    /**
+     * CurlClient::toCache()
+     * 
+     * @param mixed $response
+     * @return
+     */
+    public function toCache($response = null){
+        return $response->getBody()->getContents();
+    }
+        
+    /**
      * CurlClient::__construct()
      * 
      * @param mixed $options
      * @return
      */
     private function __construct($options = []){
-        $this->setClient(new GuzzleClient(array_merge(['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()],$options)));
+        $this->clientOptions = array_merge(['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()],$options);
+        $this->setClient(new GuzzleClient());
         return $this;
     }
     
@@ -139,6 +192,29 @@ class CurlClient
             }
         }
         return $this->validatedLinks;
+    }
+    
+    /**
+     * CurlClient::setBaseUri()
+     * 
+     * @param mixed $url
+     * @return
+     */
+    public function setBaseUri($url = null){
+        $this->clientOptions['base_uri'] = $url;
+        return $this;
+    }
+    
+    /**
+     * CurlClient::setRequestCookiesFromArray()
+     * 
+     * @param mixed $cookies
+     * @param mixed $domain
+     * @return
+     */
+    public function setRequestCookiesFromArray($cookies = [],$domain = null){
+        $this->clientOptions['cookies'] = \GuzzleHttp\Cookie\CookieJar::fromArray($cookies,$domain);
+        return $this;
     }
     
     /**
