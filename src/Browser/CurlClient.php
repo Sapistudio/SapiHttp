@@ -40,12 +40,21 @@ class CurlClient
     }
     
     /**
-     * CurlClient::make()
+     * CurlClient::makeToTest()
      * 
      * @return
      */
     public static function makeToTest($options = []){
         return new static(array_merge_recursive(self::$validateTestHeaders,$options));
+    }
+    
+    /**
+     * CurlClient::getDefaultClient()
+     * 
+     * @return
+     */
+    public static function getDefaultClient($options = []){
+        return new GuzzleClient($options);
     }
     
     /**
@@ -70,9 +79,11 @@ class CurlClient
             $options = array_merge_recursive($options,['headers'=>$this->headers]);
         $this->resetHeaders();
         try {
+            if(isset($options['cookies']) && !$options['cookies'] instanceof GuzzleCookieJar)
+                unset($options['cookies']);
             $this->currentRequest = $this->getClient()->$name($this->currentUrl,$options);
             return $this->currentRequest;
-        } catch (RequestException $e) {
+        } catch(RequestException $e){
             $response = $e->getResponse();
             if (null === $response) {
                 throw $e;
@@ -137,8 +148,30 @@ class CurlClient
      * @return
      */
     private function __construct($options = []){
-        $this->clientOptions = array_merge(['allow_redirects' => true, 'cookies' => new GuzzleCookieJar()],$options);
+        $this->clientOptions = $options;
+        $this->allowRedirects();
+        $this->setCookies();
         $this->setClient(new GuzzleClient());
+        return $this;
+    }
+    
+    /**
+     * CurlClient::setCookies()
+     * 
+     * @return
+     */
+    public function setCookies(){
+        $this->clientOptions['cookies'] = new GuzzleCookieJar();
+        return $this;
+    }
+    
+    /**
+     * CurlClient::allowRedirects()
+     * 
+     * @return
+     */
+    public function allowRedirects(){
+        $this->clientOptions['allow_redirects'] = true;
         return $this;
     }
     
