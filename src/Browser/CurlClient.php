@@ -138,7 +138,7 @@ class CurlClient
      * @return
      */
     public function toCache($response = null){
-        return $response->getBody()->getContents();
+        return ($response) ? $response->getBody()->getContents() : false;
     }
         
     /**
@@ -174,6 +174,16 @@ class CurlClient
         $this->clientOptions['allow_redirects'] = true;
         return $this;
     }
+    
+    /**
+     * CurlClient::setDebug()
+     * 
+     * @return
+     */
+    public function setDebug(){
+        $this->clientOptions['debug'] = true;
+        return $this;
+    }            
     
     /**
      * CurlClient::setClient()
