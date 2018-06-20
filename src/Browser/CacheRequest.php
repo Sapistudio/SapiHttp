@@ -45,7 +45,7 @@ class CacheRequest
         if($response)
             return $response;
         $response = self::$requestClient->$name(...$arguments);
-        if(!method_exists($this,'toCache'))
+        if(method_exists(self::$requestClient,'toCache'))
             $response = self::$requestClient->toCache($response);
         self::$cacheClient->set(self::$tokenName,$response,SELF::CACHE_VALIDITY);
         return $response;
