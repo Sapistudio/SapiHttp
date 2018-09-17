@@ -82,13 +82,13 @@ class CurlClient
             if(isset($options['cookies']) && !$options['cookies'] instanceof GuzzleCookieJar)
                 unset($options['cookies']);
             $this->currentRequest = $this->getClient()->$name($this->currentUrl,$options);
-            return $this->currentRequest;
         } catch(RequestException $e){
-            $response = $e->getResponse();
-            if (null === $response) {
+            $this->currentRequest = $e->getResponse();
+            if (null === $this->currentRequest) {
                 throw $e;
             }
         }
+        return $this->currentRequest;
     }
     
     /**
@@ -183,7 +183,7 @@ class CurlClient
     public function setDebug(){
         $this->clientOptions['debug'] = true;
         return $this;
-    }            
+    }
     
     /**
      * CurlClient::setClient()
