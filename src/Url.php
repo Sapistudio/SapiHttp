@@ -8,7 +8,6 @@ class Url
     const PATH_SEGMENT_SEPARATOR    = '/';
     const WRITE_FLAG_AS_IS          = 0;
     const WRITE_FLAG_OMIT_SCHEME    = 1;
-    const WRITE_FLAG_OMIT_HOST      = 2;
 
     protected $original_url;
     protected $scheme;
@@ -124,12 +123,9 @@ class Url
     public function write($write_flags = self::WRITE_FLAG_AS_IS)
     {
         $show_scheme = $this->scheme && (!($write_flags & self::WRITE_FLAG_OMIT_SCHEME));
-        $show_authority = $this->host && (!($write_flags & self::WRITE_FLAG_OMIT_HOST));
         $url = ($show_scheme ? $this->scheme . ':' : '');
         if ($show_authority || $this->scheme == 'file') $url .= '//';
-        if ($show_authority) {
-            $url .= $this->getAuthority();
-        }
+        
         $url .= ($this->path ? $this->path : '');
         $url .= ($this->query ? '?' . $this->query : '');
         $url .= ($this->fragment ? '#' . $this->fragment : '');
