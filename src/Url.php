@@ -122,10 +122,11 @@ class Url
      */
     public function write($write_flags = self::WRITE_FLAG_AS_IS)
     {
+        $port = $this->getPort();
         $show_scheme = $this->scheme && (!($write_flags & self::WRITE_FLAG_OMIT_SCHEME));
         $url = ($show_scheme ? $this->scheme . ':' : '');
-        if ($show_authority || $this->scheme == 'file') $url .= '//';
-        
+        $url .= '//';
+        $url .= $this->host . ($port ? ':' . $port : '');
         $url .= ($this->path ? $this->path : '');
         $url .= ($this->query ? '?' . $this->query : '');
         $url .= ($this->fragment ? '#' . $this->fragment : '');
