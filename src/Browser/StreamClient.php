@@ -371,7 +371,7 @@ class StreamClient
     }
     
     /**
-     * CurlClient::array_merge_recursive_distinct()
+     * StreamClient::array_merge_recursive_distinct()
      * 
      * @return
      */
