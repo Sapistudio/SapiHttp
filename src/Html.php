@@ -1,7 +1,7 @@
 <?php
 namespace SapiStudio\Http;
 
-use SapiStudio\Http\Browser\CurlClient;
+use SapiStudio\Http\Browser\StreamClient;
 use Exception;
 
 class Html
