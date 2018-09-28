@@ -21,9 +21,9 @@ sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 
 # Get a guzzle 6 object
 ```php
-use SapiStudio\Http\Browser\CurlClient;
+use SapiStudio\Http\Browser\StreamClient;
 
-$browserClient  = CurlClient::make();
+$browserClient  = StreamClient::make();
 ```
 
 # Parse use agent string
