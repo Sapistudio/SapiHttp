@@ -156,11 +156,11 @@ class StreamClient
     }
 
     /**
-     * StreamClient::getRequestStatusCode()
+     * StreamClient::getStatusCode()
      * 
      * @return
      */
-    public function getRequestStatusCode(){
+    public function getStatusCode(){
         return $this->currentRequest->getStatusCode();
     }
 
