@@ -40,7 +40,7 @@ class Html
         if(!$content)
             return false;
         if(is_array($content))
-            return CurlClient::make()->validateLinks($content);
+            return StreamClient::make()->validateLinks($content);
         $crawler    = self::loadHtml($content);
         $images     = $crawler->getDomImages();
         $links      = $crawler->getAllLinks();
