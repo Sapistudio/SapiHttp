@@ -69,11 +69,11 @@ class StreamClient
     public function __call($name,$arguments)
     {
         if(method_exists($this->getClient(),$name))
-            return $this->getClient()->$name(...$arguments);
+            return $this->getClient()->$name(...$arguments); 
         $this->currentRequest   = null;
         $this->currentUrl       = $arguments[0];
         try {
-            $this->currentRequest = $this->getClient()->$name($this->currentUrl,$options);
+            $this->currentRequest = $this->getClient()->$name($this->currentUrl,(isset($arguments[1])) ? $arguments[1] : []);
         }catch(RequestException $e){
             $this->currentRequest = $e->getResponse();
             if (null === $this->currentRequest) {
