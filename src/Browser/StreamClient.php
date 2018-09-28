@@ -170,6 +170,7 @@ class StreamClient
      * @return
      */
     public function getBody(){
+        $this->currentRequest->getBody()->rewind();
         return $this->currentRequest->getBody()->getContents();
     }
     
