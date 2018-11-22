@@ -22,7 +22,8 @@ class StreamClient
     private $currentUrl     = null;
     private $defaultOptions = [];
     private $currentRequest = null;
-    protected $historyUrl   = [];    
+    protected $historyUrl   = [];
+    protected $crawler      = null;
     
     /*
     |--------------------------------------------------------------------------
@@ -53,7 +54,7 @@ class StreamClient
      * 
      * @return
      */
-    private function __construct($options = []){
+    protected function __construct($options = []){
         $this->defaultOptions               = self::array_merge_recursive_distinct(self::$clientConfig['defaultConfig'],$options);
         $this->defaultOptions['cookies']    = new GuzzleCookieJar();
         $this->defaultOptions['on_stats']   = function(\GuzzleHttp\TransferStats $stats){$this->currentUrl = $stats->getEffectiveUri()->__toString();$this->historyUrl[] = $stats->getEffectiveUri();};
@@ -68,20 +69,20 @@ class StreamClient
      */
     public function __call($name,$arguments)
     {
-        if(method_exists($this->getClient(),$name))
-            return $this->getClient()->$name(...$arguments); 
+        if((method_exists($this->getClient(),$name) && !in_array($name,['requestAsync','request','send'])) || in_array($name,['headAsync']))
+            return $this->getClient()->$name(...$arguments);
         $this->currentRequest   = null;
-        $this->currentUrl       = $arguments[0];
         try {
-            $this->currentRequest = $this->getClient()->$name($this->currentUrl,(isset($arguments[1])) ? $arguments[1] : []);
+            $this->currentRequest = $this->getClient()->$name(...$arguments); 
         }catch(RequestException $e){
             $this->currentRequest = $e->getResponse();
             if (null === $this->currentRequest) {
                 throw $e;
             }
         }
-        $this->defaultOptions = $this->getConfig();
-        $this->crawler = $this->createCrawlerFromContent($this->currentUrl, $this->getBody(), $this->getRequestHeader('Content-Type'));
+        if ($this->currentRequest instanceof \GuzzleHttp\Psr7\Response) {
+            $this->crawler          = $this->createCrawlerFromContent($this->currentUrl, $this->getBody(), $this->getRequestHeader('Content-Type'));
+        }
         return $this;
     }
     
@@ -104,7 +105,7 @@ class StreamClient
             return false;
         foreach($urlLinks as $keyLink=>$Link){
             if(\SapiStudio\Http\Html::isValidURL($Link)){
-                $promises[$keyLink] = $this->headAsync($Link,self::$validateTestHeaders);
+                $promises[$keyLink] = $this->headAsync($Link,self::$clientConfig['testConfig']);
             }
         }
         $results = Promise\settle($promises)->wait();
@@ -169,7 +170,7 @@ class StreamClient
      * 
      * @return
      */
-    public function getBody(){
+    public function getBody(){     
         $this->currentRequest->getBody()->rewind();
         return $this->currentRequest->getBody()->getContents();
     }
@@ -211,7 +212,12 @@ class StreamClient
         $this->defaultOptions['cookies'] = $cookieJar;
         return $this->initClient();
     }
-
+    
+    public function setRequestCookiesFromArray($cookies = [],$domain = null){
+        $this->defaultOptions['cookies'] = \GuzzleHttp\Cookie\CookieJar::fromArray($cookies,$domain);
+        return $this->initClient();
+    }
+                
     /**
      * StreamClient::allowRedirects()
      * 
@@ -272,7 +278,8 @@ class StreamClient
                     'stream_context' => [
                         'ssl' => [
                             'verify_peer' => false,
-                            'verify_peer_name' => false
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true
                         ]
                     ]
                 ]);
@@ -343,7 +350,8 @@ class StreamClient
      * @return
      */
     public function setUserAgent($userAgent=''){
-        $this->defaultOptions['headers']['User-Agent'] = $userAgent;
+        if(trim($userAgent)!='')
+            $this->defaultOptions['headers']['User-Agent'] = $userAgent;
         return $this->initClient();
     }
     
@@ -352,12 +360,6 @@ class StreamClient
     | Helpers methods
     |--------------------------------------------------------------------------
     */
-    
-    public function sadsadsa(){
-        $link = $this->crawler->filterXPath('//form')->form();$link['p']='dasdsa';print_R($link->getMethod());
-        $this->currentRequest = $this->getClient()->request($link->getMethod(),$link->getUri(),['query' => $link->getValues()]);
-        die($this->getBody());
-    }
     
     /**
      * StreamClient::createCrawlerFromContent()

@@ -45,7 +45,7 @@ class Html
         $images     = $crawler->getDomImages();
         $links      = $crawler->getAllLinks();
         $toCheck    = array_merge($images,$links);
-        return array_merge_recursive(CurlClient::make()->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
+        return array_merge_recursive(StreamClient::make()->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
     }
     
     /**
@@ -81,6 +81,12 @@ class Html
         return self::attributesBeautifier($this->domCrawler->filterXpath('//area')->extract($attributes),$attributes);
     }
     
+    /**
+     * Html::getDomBody()
+     */
+    public function getDomBody(){
+        return $this->domCrawler->filterXpath('//body')->html();
+    }
     /**
      * Html::getAllLinks()
      * 
