@@ -7,6 +7,8 @@ use GuzzleHttp\Promise;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Form;
+use Symfony\Component\DomCrawler\Link;
 
 class StreamClient
 {
@@ -19,54 +21,46 @@ class StreamClient
     protected $transportMethod = null;
     protected $httpClient;
     private $headers        = [];
-    private $currentUrl     = null;
+    protected $currentUrl   = null;
     private $defaultOptions = [];
     private $currentRequest = null;
     protected $historyUrl   = [];
     protected $crawler      = null;
     
-    /*
+    /**
     |--------------------------------------------------------------------------
     | Init methods
     |--------------------------------------------------------------------------
     */
     
-    /**
-     * StreamClient::make()
-     * 
-     * @return
-     */
+    /** StreamClient::make() */
     public static function make($options = []){
         return new static($options);
     }
 
-    /**
-     * StreamClient::makeToTest()
-     * 
-     * @return
-     */
+    /** StreamClient::makeToTest() */
     public static function makeToTest($options = []){
         return new static(self::array_merge_recursive_distinct(self::$clientConfig['testConfig'],$options));
     }
     
-    /**
-     * StreamClient::__construct()
-     * 
-     * @return
-     */
+    /** StreamClient::__construct() */
     protected function __construct($options = []){
         $this->defaultOptions               = self::array_merge_recursive_distinct(self::$clientConfig['defaultConfig'],$options);
         $this->defaultOptions['cookies']    = new GuzzleCookieJar();
-        $this->defaultOptions['on_stats']   = function(\GuzzleHttp\TransferStats $stats){$this->currentUrl = $stats->getEffectiveUri()->__toString();$this->historyUrl[] = $stats->getEffectiveUri();};
+        $this->defaultOptions['on_stats']   = function(\GuzzleHttp\TransferStats $stats){$this->makeRequestStat($stats);};
         $this->defaultOptions['headers']['User-Agent'] = self::$clientConfig['defaultUserA'];
         return $this->setTransport(self::$clientConfig['method']);
     }
-
-    /**
-     * StreamClient::__call()
-     * 
-     * @return
-     */
+    
+    /** StreamClient::makeRequestStat() */
+    protected function makeRequestStat($stats){
+        $statistics = $stats->getHandlerStats();
+        $this->currentUrl = $stats->getEffectiveUri()->__toString();
+        $this->historyUrl[] = $stats->getEffectiveUri();
+        //echo $stats->getRequest()->getMethod().'   -   '.$statistics['url'].'   -   '.$statistics['http_code'].'   -   '.$statistics['total_time']."\n";
+    }
+    
+    /** StreamClient::__call() */
     public function __call($name,$arguments)
     {
         if((method_exists($this->getClient(),$name) && !in_array($name,['requestAsync','request','send'])) || in_array($name,['headAsync']))
@@ -82,24 +76,18 @@ class StreamClient
         }
         if ($this->currentRequest instanceof \GuzzleHttp\Psr7\Response) {
             $this->crawler          = $this->createCrawlerFromContent($this->currentUrl, $this->getBody(), $this->getRequestHeader('Content-Type'));
+            if(method_exists($this,'initOnRequest'))
+                $this->initOnRequest();
         }
         return $this;
     }
     
-    /**
-     * StreamClient::cacheRequest()
-     * 
-     * @return
-     */
+    /** StreamClient::cacheRequest() */
     public function cacheRequest($token=null){
         return CacheRequest::init($this,$token);
     }
     
-    /**
-     * StreamClient::validateLinks()
-     * 
-     * @return
-     */
+    /** StreamClient::validateLinks() */
     public function validateLinks($urlLinks = []){
         if(!is_array($urlLinks))
             return false;
@@ -122,79 +110,78 @@ class StreamClient
         return $this->validatedLinks;
     }
     
-    /*
+    /**
+    |--------------------------------------------------------------------------
+    | Crawler methods
+    |--------------------------------------------------------------------------
+    */
+    
+    /** StreamClient::click()*/
+    public function click(Link $link)
+    {
+        if ($link instanceof Form) {
+            return $this->submit($link);
+        }
+        return $this->request($link->getMethod(), $link->getUri());
+    }
+    
+    /** StreamClient::click()*/
+    public function submit(Form $form, array $values = [])
+    {
+        $form->setValues($values);
+        return $this->request($form->getMethod(), $form->getUri(), ['form_params' => $form->getValues()]);
+    }
+    
+    
+    /**
     |--------------------------------------------------------------------------
     | Response methods
     |--------------------------------------------------------------------------
     */
     
-    /**
-     * StreamClient::getConfig()
-     * 
-     * @return
-     */
+    /** StreamClient::getConfig() */
     public function getConfig(){
         return $this->getClient()->getConfig();
     }
     
-    /**
-     * StreamClient::getCookies()
-     * 
-     * @return
-     */
+    /** StreamClient::getCookies() */
     public function getCookies(){
         return $this->getClient()->getConfig('cookies');
     }
 
-    /**
-     * StreamClient::getResponse()
-     * 
-     * @return
-     */
+    /** StreamClient::getResponse()*/
     public function getResponse($url,$arguments=null){
         $this->get($url,$arguments);
         return $this->getBody();
     }
-
-    /**
-     * StreamClient::getStatusCode()
-     * 
-     * @return
-     */
+    
+    public function getCurrentUri(){
+        return $this->currentUrl;
+    }
+    
+    /** StreamClient::getStatusCode()*/
     public function getStatusCode(){
         return $this->currentRequest->getStatusCode();
     }
 
-    /**
-     * StreamClient::getBody()
-     * 
-     * @return
-     */
+    /** StreamClient::getBody() */
     public function getBody(){     
         $this->currentRequest->getBody()->rewind();
         return $this->currentRequest->getBody()->getContents();
     }
     
-    /**
-     * StreamClient::getRequestHeader()
-     * 
-     * @return
-     */
+    /** StreamClient::getRequestHeader() */
     public function getRequestHeader($headerName = null){
         return (is_null($headerName)) ? $this->currentRequest->getHeaders() : $this->currentRequest->getHeaderLine($headerName);
     }
     
-    /*
+    /**
     |--------------------------------------------------------------------------
     | Configs methods
     |--------------------------------------------------------------------------
     */
     
-    /**
-     * StreamClient::setCookiesFromArray()
-     * 
-     * @return
-     */
+    /** StreamClient::setCookiesFromArray()*/
     public  function setCookiesFromArray(array $cookies)
     {
         $cookieJar = new GuzzleCookieJar();
@@ -213,35 +200,25 @@ class StreamClient
         return $this->initClient();
     }
     
+    /** StreamClient::setRequestCookiesFromArray()*/
     public function setRequestCookiesFromArray($cookies = [],$domain = null){
         $this->defaultOptions['cookies'] = \GuzzleHttp\Cookie\CookieJar::fromArray($cookies,$domain);
         return $this->initClient();
     }
                 
-    /**
-     * StreamClient::allowRedirects()
-     * 
-     * @return
-     */
+    /** StreamClient::allowRedirects()*/
     public function allowRedirects($allow = null){
         $this->defaultOptions['allow_redirects'] = (bool)$allow;
         return $this->initClient();
     }
     
-    /**
-     * StreamClient::setDebug()
-     * 
-     * @return
-     */
+    /** StreamClient::setDebug() */
     public function setDebug($debug = null){
         $this->defaultOptions['debug'] = (bool)$debug;
         return $this->initClient();
     }
-    /**
-     * StreamClient::bindTo()
-     * 
-     * @return
-     */
+    
+    /** StreamClient::bindTo() */
     public function bindTo($ipToBinp =null){
         switch($this->transportMethod){
             case "stream":
@@ -255,21 +232,13 @@ class StreamClient
         return $this->initClient();
     }
 
-    /**
-     * StreamClient::setBaseUri()
-     * 
-     * @return
-     */
+    /** StreamClient::setBaseUri() */
     public function setBaseUri($url = null){
         $this->defaultOptions['base_uri'] = $url;
         return $this->initClient();
     }
     
-    /**
-     * StreamClient::setTransport()
-     * 
-     * @return
-     */
+    /** StreamClient::setTransport() */
     public function setTransport($method=null){
         switch($method){
             case "stream":
@@ -293,22 +262,14 @@ class StreamClient
         return $this->initClient(); 
     }
     
-    /**
-     * StreamClient::initClient()
-     * 
-     * @return
-     */
+    /** StreamClient::initClient() */
     protected function initClient()
     {
         $this->httpClient = new GuzzleClient($this->defaultOptions);
         return $this;
     }
 
-    /**
-     * StreamClient::getClient()
-     * 
-     * @return
-     */
+    /** StreamClient::getClient()  */
     public function getClient()
     {
         if (!$this->httpClient)
@@ -316,56 +277,40 @@ class StreamClient
         return $this->httpClient;
     }
    
-    /*
+    /**
     |--------------------------------------------------------------------------
     | Headers methods
     |--------------------------------------------------------------------------
     */
     
-    /**
-     * StreamClient::setHeader()
-     * 
-     * @return
-     */
+    /** StreamClient::setHeader()  */
     public function setHeader($name, $value='')
     {
         $this->defaultOptions['headers'][$name] = $value;
         return $this->initClient(); 
     }
 
-    /**
-     * StreamClient::removeHeader()
-     * 
-     * @return
-     */
+    /** StreamClient::removeHeader() */
     public function removeHeader($name)
     {
         unset($this->defaultOptions['headers'][$name]);
         return $this->initClient(); 
     }
 
-    /**
-     * StreamClient::setUserAgent()
-     * 
-     * @return
-     */
+    /** StreamClient::setUserAgent() */
     public function setUserAgent($userAgent=''){
         if(trim($userAgent)!='')
             $this->defaultOptions['headers']['User-Agent'] = $userAgent;
         return $this->initClient();
     }
     
-    /*
+    /**
     |--------------------------------------------------------------------------
     | Helpers methods
     |--------------------------------------------------------------------------
     */
     
-    /**
-     * StreamClient::createCrawlerFromContent()
-     * 
-     * @return
-     */
+    /** StreamClient::createCrawlerFromContent() */
     protected function createCrawlerFromContent($uri, $content, $type)
     {
         $crawler = new Crawler(null, $uri);
@@ -373,11 +318,7 @@ class StreamClient
         return $crawler;
     }
     
-    /**
-     * StreamClient::array_merge_recursive_distinct()
-     * 
-     * @return
-     */
+    /**  StreamClient::array_merge_recursive_distinct() */
     protected static function array_merge_recursive_distinct(array &$array1, array &$array2)
     {
         $merged = $array1;
