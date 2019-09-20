@@ -25,6 +25,7 @@ class StreamClient
     private $defaultOptions = [];
     private $currentRequest = null;
     protected $historyUrl   = [];
+    protected $historyStats = [];
     protected $crawler      = null;
     
     /**
@@ -54,10 +55,10 @@ class StreamClient
     
     /** StreamClient::makeRequestStat() */
     protected function makeRequestStat($stats){
-        $statistics = $stats->getHandlerStats();
-        $this->currentUrl = $stats->getEffectiveUri()->__toString();
-        $this->historyUrl[] = $stats->getEffectiveUri();
-        //echo $stats->getRequest()->getMethod().'   -   '.$statistics['url'].'   -   '.$statistics['http_code'].'   -   '.$statistics['total_time']."\n";
+        $statistics             = $stats->getHandlerStats();
+        $this->currentUrl       = $stats->getEffectiveUri()->__toString();
+        $this->historyUrl[]     = $stats->getEffectiveUri();
+        $this->historyStats[]   = $stats->getRequest()->getMethod().'   -   '.$statistics['url'].'   -   '.$statistics['http_code'].'   -   '.$statistics['total_time'];
     }
     
     /** StreamClient::__call() */
@@ -158,6 +159,11 @@ class StreamClient
     public function getCurrentUri(){
         return $this->currentUrl;
     }
+    
+    public function gethistoryStats(){
+        return $this->historyStats;
+    }
+    
     
     /** StreamClient::getStatusCode()*/
     public function getStatusCode(){
