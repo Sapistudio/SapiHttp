@@ -13,11 +13,7 @@ class Session implements SessionHandlerInterface
     private static $instance;
     private $sessionId = null;
 
-    /**
-     * Session::__construct()
-     * 
-     * @return
-     */
+    /** Session::__construct() */
     public function __construct($argument = null)
     {
         $this->config = require __dir__.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'config.php';
@@ -27,11 +23,7 @@ class Session implements SessionHandlerInterface
         
     }
 
-    /**
-     * Session::destroy()
-     * 
-     * @return
-     */
+    /** Session::destroy() */
     public static function clearSession(){
         session_destroy();
         self::$instance->invalidate();
@@ -39,11 +31,7 @@ class Session implements SessionHandlerInterface
         return true;
     }
     
-    /**
-     * Session::globalise()
-     * 
-     * @return
-     */
+    /** Session::globalise()*/
     public function globalise($alias = null)
     {
         if (!is_null($alias)){
@@ -56,11 +44,7 @@ class Session implements SessionHandlerInterface
         self::$instance = $this;
     }
 
-    /**
-     * Session::__call()
-     * 
-     * @return
-     */
+    /** Session::__call()*/
     public function __call($name, $arguments)
     {
         $this->checkIntegrity();
@@ -69,11 +53,7 @@ class Session implements SessionHandlerInterface
         return $return;
     }
 
-    /**
-     * Session::__callStatic()
-     * 
-     * @return
-     */
+    /** Session::__callStatic()*/
     public static function __callStatic($name, $args)
     {
         if (empty(self::$instance))
@@ -81,22 +61,14 @@ class Session implements SessionHandlerInterface
         return call_user_func_array([self::$instance,$name], $args);
     }
 
-    /**
-     * Session::save()
-     * 
-     * @return
-     */
+    /** Session::save()*/
     public function save()
     {
         $this->checkIntegrity();
         $this->sessionHandler->save();
     }
-
-    /**
-     * Session::checkIntegrity()
-     * 
-     * @return
-     */
+    
+    /** Session::checkIntegrity() */
     public function checkIntegrity()
     {
         $combine = array_merge(['put' => array_diff_assoc($_SESSION, $this->sessionHandler->all())],['forget' => array_keys(array_diff_assoc($this->sessionHandler->all(), $_SESSION))]);
@@ -110,11 +82,7 @@ class Session implements SessionHandlerInterface
         return true;
     }
 
-    /**
-     * Session::dispatch()
-     * 
-     * @return
-     */
+    /** Session::dispatch() */
     protected function dispatch()
     {
         switch ($this->config['driver']) {
@@ -136,11 +104,7 @@ class Session implements SessionHandlerInterface
         return $this;
     }
 
-    /**
-     * Session::initiatePhpSession()
-     * 
-     * @return
-     */
+    /** Session::initiatePhpSession()*/
     protected function initiatePhpSession()
     {
         ini_set('session.serialize_handler','php_serialize');
@@ -148,93 +112,58 @@ class Session implements SessionHandlerInterface
         session_set_save_handler($this, true);
         session_start();
     }
-    /**
-     * Session::fileHandler()
-     * 
-     * @return
-     */
+    
+    /** Session::fileHandler()*/
     protected function fileHandler()
     {
         return new FileSessionHandler(new Filesystem, $this->config['files'], $this->config['lifetime']);
     }
 
-    /**
-     * Session::setConfig()
-     * 
-     * @return
-     */
+    /** Session::setConfig() */
     public function setConfig(array $config)
     {
         $this->config = array_replace($this->config, $config);
         return $this;
     }
 
-    /**
-     * Session::getConfig()
-     * 
-     * @return
-     */
+    /** Session::getConfig()*/
     public function getConfig()
     {
         return $this->config;
     }
 
 
-    /**
-     * Session::open()
-     * 
-     * @return
-     */
+    /** Session::open()*/
     public function open($savePath, $sessionName)
     {
         return $this->sessionHandler->getHandler()->open($savePath, $sessionName);
     }
 
-    /**
-     * Session::close()
-     * 
-     * @return
-     */
+    /** Session::close()*/
     public function close()
     {
         return $this->sessionHandler->getHandler()->close();
     }
 
-    /**
-     * Session::read()
-     * 
-     * @return
-     */
+    /** Session::read()*/
     public function read($id)
     {
         return $this->sessionHandler->getHandler()->read($id);
     }
 
-    /**
-     * Session::write()
-     * 
-     * @return
-     */
+    /** Session::write()*/
     public function write($id, $data)
     {
         return $this->sessionHandler->save();
     }
 
-    /**
-     * Session::destroy()
-     * 
-     * @return
-     */
+    /** Session::destroy()*/
     public function destroy($id)
     {
         return $this->sessionHandler->getHandler()->destroy($id);
     }
 
-    /**
-     * Session::gc()
-     * 
-     * @return
-     */
+    /** Session::gc()*/
     public function gc($maxlifetime)
     {
         return $this->sessionHandler->getHandler()->gc($maxlifetime);

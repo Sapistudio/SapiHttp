@@ -34,6 +34,11 @@ class StreamClient
     |--------------------------------------------------------------------------
     */
     
+    /** StreamClient::getPageContent() */
+    public static function getPageContent($url){
+        return (new static())->getPageResponse($url);
+    }
+    
     /** StreamClient::make() */
     public static function make($options = []){
         return new static($options);
@@ -150,20 +155,21 @@ class StreamClient
         return $this->getClient()->getConfig('cookies');
     }
 
-    /** StreamClient::getResponse()*/
-    public function getResponse($url,$arguments=null){
+    /** StreamClient::getPageResponse()*/
+    public function getPageResponse($url,$arguments=null){
         $this->get($url,$arguments);
         return $this->getBody();
     }
     
+    /** StreamClient::getCurrentUri()*/
     public function getCurrentUri(){
         return $this->currentUrl;
     }
     
+    /** StreamClient::gethistoryStats()*/
     public function gethistoryStats(){
         return $this->historyStats;
     }
-    
     
     /** StreamClient::getStatusCode()*/
     public function getStatusCode(){
