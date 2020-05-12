@@ -11,7 +11,7 @@ const callChrome    = async () => {
     
     try {
         
-        browser = await puppeteer.launch({ args: request.options.args || [] });
+        browser = await puppeteer.launch({ignoreHTTPSErrors: true, acceptInsecureCerts: true, args: request.options.args || [] });
         page    = await browser.newPage();
         
         if (request.options && request.options.userAgent) {
