@@ -23,7 +23,8 @@ sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 ```php
 use SapiStudio\Http\Browser\StreamClient;
 
-$browserClient  = StreamClient::make();
+$streamClient  = StreamClient::make();
+$streamClient  = StreamClient::makeGuzzle();
 ```
 
 # Parse use agent string
