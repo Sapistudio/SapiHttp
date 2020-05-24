@@ -18,13 +18,23 @@ sudo npm install --global --unsafe-perm puppeteer
 sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 ```
 
-
 # Get a guzzle 6 object
 ```php
 use SapiStudio\Http\Browser\StreamClient;
 
 $streamClient  = StreamClient::make();
 $guzzleClient  = StreamClient::makeGuzzle();
+```
+
+# Test all images and links(src,href) from content or a list of of URIS
+```php
+use SapiStudio\Http\Browser\StreamClient;
+use \SapiStudio\Http\Html;
+
+$linksValidation = Html::testUris($content);
+// content can be html string,or an array containing links to be tested
+//or only an array of links
+$linksValidation = StreamClient::make()->validateLinks($links);
 ```
 
 # Parse use agent string
