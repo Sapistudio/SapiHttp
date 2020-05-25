@@ -150,7 +150,6 @@ class StreamClient
                 $this->promises[$uriIndex][self::ASYNC_SUCCESSFUL]      = false;
                 continue;
             }
-            echo 'Preparing link: '.$uriData[self::ASYNC_URILINK_MAP]."\n";
             $this->getFilenameFromDisposition($uriIndex);
             $promiseRequests[$uriIndex] = $this->getClient()->getAsync($uriData[self::ASYNC_URILINK_MAP],
                 [
@@ -167,7 +166,6 @@ class StreamClient
                 ]
             );
         }
-        echo 'Start promises: '."\n";
         $results = Promise\settle($promiseRequests)->wait();
         if($results){
             foreach($results as $promiseIndex=>$promiseResponse){
