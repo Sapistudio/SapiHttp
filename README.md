@@ -37,6 +37,17 @@ $linksValidation = Html::testUris($content);
 $linksValidation = StreamClient::make()->validateLinks($links);
 ```
 
+# Download files async
+```php
+use SapiStudio\Http\Browser\StreamClient;
+
+$uris[$uniqueIndex] = [
+  StreamClient::ASYNC_URIPATH_MAP     => 'path to download', 
+  StreamClient::ASYNC_URILINK_MAP     => 'url link'
+];
+$uris = StreamClient::make()->downloadFilesAsync($uris);
+```
+
 # Parse use agent string
 ```php
 use SapiStudio\Http\DeviceDetector;
