@@ -22,6 +22,9 @@ class StreamClient
     const ASYNC_TIMESTAMP       = 'timestampGetter';
     const ASYNC_PROGRESS_BYTES  = 'totalDownloaded';
     const ASYNC_TOTAL_SIZE      = 'toDownload';
+    const ASYNC_LOCK_TO_START   = 'lockUntilStart';
+    const PROGRESS_TO_JSON      = 'outputPgBtoJson';
+    const PROGRESS_BAR_FORMAT   = "\n%message%\n%current% [%bar%] %percent:3s%%\n%elapsed:-21s% %memory:21s%\n";
     
     protected static $clientConfig =  [
         'method'        => 'curl',
@@ -39,6 +42,8 @@ class StreamClient
     protected $historyStats = [];
     protected $crawler      = null;
     private $promises       = [];
+    private $pgBarPromises  = null;
+    private $streamConsoleOutput = null;
     
     /**
     |--------------------------------------------------------------------------
@@ -140,6 +145,9 @@ class StreamClient
         $promiseRequests    = [];
         $this->promises     = $uriFiles;
         foreach ($this->promises as $uriIndex => $uriData) {
+            /** this is a redue pass var*/
+            if(isset($uriData[self::ASYNC_SUCCESSFUL]) && $uriData[self::ASYNC_SUCCESSFUL])
+                continue;
             if (filter_var($uriData[self::ASYNC_URILINK_MAP], FILTER_VALIDATE_URL) === FALSE) {
                 $this->promises[$uriIndex][self::ASYNC_ERROR_DOWNLOAD]  = $uriData[self::ASYNC_URILINK_MAP].' not a valid link';
                 $this->promises[$uriIndex][self::ASYNC_SUCCESSFUL]      = false;
@@ -151,13 +159,20 @@ class StreamClient
                 continue;
             }
             $this->getFilenameFromDisposition($uriIndex);
+            $this->promises[$uriIndex][self::ASYNC_LOCK_TO_START] = true;
             $promiseRequests[$uriIndex] = $this->getClient()->getAsync($uriData[self::ASYNC_URILINK_MAP],
                 [
                     'save_to'           => $this->promises[$uriIndex][self::ASYNC_URIPATH_MAP].$this->promises[$uriIndex][self::ASYNC_URIFILE_MAP],
                     'allow_redirects'   => ['track_redirects' => true],
                     'progress'          => function($downloadTotal,$downloadedBytes,$uploadTotal,$uploadedBytes) use ($uriIndex) {
-                        $this->promises[$uriIndex][self::ASYNC_PROGRESS_BYTES] = $downloadedBytes;
-                        echo $this->updateProgressBar();
+                        $this->promises[$uriIndex][self::ASYNC_TOTAL_SIZE]      = $downloadTotal;
+                        $this->promises[$uriIndex][self::ASYNC_PROGRESS_BYTES]  = $downloadedBytes;
+                        if(isset($this->promises[$uriIndex][self::ASYNC_LOCK_TO_START]) && $downloadTotal > 0)
+                            unset($this->promises[$uriIndex][self::ASYNC_LOCK_TO_START]);
+                        if($this->promises[$uriIndex][self::PROGRESS_TO_JSON]) 
+                            echo json_encode([$downloadTotal,$downloadedBytes]);
+                        else
+                            $this->checkProgressBar($uriIndex);
                     },
                     'on_headers'        => function (\GuzzleHttp\Psr7\Response $response)  use ($uriIndex){
                         if(!$this->promises[$uriIndex][self::ASYNC_URIFILE_MAP])
@@ -186,7 +201,6 @@ class StreamClient
         $getHead            = $this->head($this->promises[$promisIndex][self::ASYNC_URILINK_MAP],['allow_redirects'=>['strict' => true]]);
         $dispositionValue   = $getHead->getRequestHeader('Content-Disposition');
         $contentType        = $getHead->getRequestHeader('Content-Type');
-        $this->promises[$promisIndex][self::ASYNC_TOTAL_SIZE] = $getHead->getRequestHeader('Content-Length');
         $filename = null;
         if($dispositionValue){
             if(preg_match('/.*filename=[\'\"]([^\'\"]+)/', $dispositionValue, $matches))
@@ -410,6 +424,12 @@ class StreamClient
     |--------------------------------------------------------------------------
     */
     
+    /** StreamClient::useConsoleOutput() */
+    public function useConsoleOutput(\Symfony\Component\Console\Style\SymfonyStyle $interfaceConsoleOutput){
+        $this->streamConsoleOutput = $interfaceConsoleOutput;
+        return $this;
+    }
+    
     /** StreamClient::createCrawlerFromContent() */
     protected function createCrawlerFromContent($uri, $content, $type)
     {
@@ -427,18 +447,36 @@ class StreamClient
         return $merged;
     }
     
-    /**  StreamClient::updateProgressBar() */
-    protected function updateProgressBar($info="",$width=50){
-        $total  = array_sum(array_column($this->promises,self::ASYNC_TOTAL_SIZE));
-        $done   = array_sum(array_column($this->promises,self::ASYNC_PROGRESS_BYTES));
-        $perc   = round(($done * 100) / $total);
-        $bar    = round(($width * $perc) / 100);
-        $info   = 'Total downloads:'.count($this->promises);
-        return sprintf("%s%%[%s>%s]%s\r", $perc, str_repeat("=", $bar), str_repeat(" ", $width-$bar), self::formatBytes($total));
+    /**  StreamClient::checkProgressBar() */
+    protected function checkProgressBar($promiseIndex = 0){
+        if(!isset($this->promises[$promiseIndex]) || is_null($this->streamConsoleOutput))
+            return false;
+        $promisesLocked = array_column($this->promises,self::ASYNC_LOCK_TO_START);
+        if(!empty($promisesLocked))
+            return false;
+        $total      = array_sum(array_column($this->promises,self::ASYNC_TOTAL_SIZE));
+        $downloaded = array_sum(array_column($this->promises,self::ASYNC_PROGRESS_BYTES));
+        if (!is_null($this->streamConsoleOutput)){
+            if(!$this->pgBarPromises){
+                $this->pgBarPromises = $this->streamConsoleOutput->createProgressBar($total);
+                $this->pgBarPromises->setFormat(self::PROGRESS_BAR_FORMAT);
+                $this->pgBarPromises->setBarCharacter("<fg=green>=</>");
+                $this->pgBarPromises->setEmptyBarCharacter("<fg=red>=</>");
+                $this->pgBarPromises->setProgressCharacter("\xF0\x9F\x9A\x80");
+                $this->pgBarPromises->setMessage('Starting download(s).Total files:'.count($this->promises).'. Total size:'.self::formatBytes($total));
+                $this->pgBarPromises->start();
+            }
+            if ($total === $downloaded) {
+                $this->pgBarPromises->finish();
+                    return;
+            }
+            $this->pgBarPromises->setProgress($downloaded);
+        }
+        return $this;
     }
     
     /**  StreamClient::mime2ext() */
-    protected static function mime2ext($mime) {
+    protected static function mime2ext($mime){
         $mime_map = [
             'video/3gpp2'                                                               => '3g2',
             'video/3gp'                                                                 => '3gp',
