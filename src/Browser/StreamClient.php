@@ -76,7 +76,8 @@ class StreamClient
         $this->defaultOptions               = self::array_merge_recursive_distinct(self::$clientConfig['defaultConfig'],$options);
         $this->defaultOptions['cookies']    = new GuzzleCookieJar();
         $this->defaultOptions['on_stats']   = function(\GuzzleHttp\TransferStats $stats){$this->makeRequestStat($stats);};
-        $this->defaultOptions['headers']['User-Agent'] = self::$clientConfig['defaultUserA'];
+        if(!$this->defaultOptions['headers']['User-Agent'])
+            $this->defaultOptions['headers']['User-Agent'] = self::$clientConfig['defaultUserA'];
         return $this->setTransport(self::$clientConfig['method']);
     }
     
@@ -111,8 +112,13 @@ class StreamClient
     }
     
     /** StreamClient::cacheRequest() */
-    public function cacheRequest($token=null){
+    public function cacheRequest($token = null){
         return CacheRequest::init($this,$token);
+    }
+    
+    /** StreamClient::cacheDelete() */
+    public function cacheDelete($token = null){
+        return CacheRequest::deleteToken($this,$token);
     }
     
     /** StreamClient::validateLinks() */
@@ -396,6 +402,13 @@ class StreamClient
     | Headers methods
     |--------------------------------------------------------------------------
     */
+    
+    /** StreamClient::setDefaultOption()  */
+    public function setDefaultOption($name, $value='')
+    {
+        $this->defaultOptions[$name] = $value;
+        return $this->initClient(); 
+    }
     
     /** StreamClient::setHeader()  */
     public function setHeader($name, $value='')
