@@ -111,16 +111,6 @@ class StreamClient
         return $this;
     }
     
-    /** StreamClient::cacheRequest() */
-    public function cacheRequest($token = null){
-        return CacheRequest::init($this,$token);
-    }
-    
-    /** StreamClient::cacheDelete() */
-    public function cacheDelete($token = null){
-        return CacheRequest::deleteToken($this,$token);
-    }
-    
     /** StreamClient::validateLinks() */
     public function validateLinks($urlLinks = []){
         if(!is_array($urlLinks))
@@ -226,6 +216,36 @@ class StreamClient
     
     /**
     |--------------------------------------------------------------------------
+    | cache methods
+    |--------------------------------------------------------------------------
+    */
+    
+    /** StreamClient::setCacheParams() */
+    public function setCacheParams($params = []){
+        if($params['cacheDir'])
+            CacheRequest::setCacheDirectory($params['cacheDir']);
+        if($params['cacheVal'])
+            CacheRequest::setCacheValidity($params['validity']);
+        return $this;
+    }
+    
+    /** StreamClient::setCacheResponse() */
+    public function setCacheResponse(\GuzzleHttp\Psr7\Response $response){
+        $this->currentRequest = $response;
+    }
+        
+    /** StreamClient::cacheRequest() */
+    public function cacheRequest($token = null){
+        return CacheRequest::init($this,$token);
+    }
+    
+    /** StreamClient::cacheDelete() */
+    public function cacheDelete($tokens = null){
+        return CacheRequest::deleteTokens($tokens);
+    }
+    
+    /**
+    |--------------------------------------------------------------------------
     | Crawler methods
     |--------------------------------------------------------------------------
     */
@@ -277,6 +297,11 @@ class StreamClient
     /** StreamClient::gethistoryStats()*/
     public function gethistoryStats(){
         return $this->historyStats;
+    }
+    
+    /** StreamClient::gethistoryUrls()*/
+    public function gethistoryUrls(){
+        return $this->historyUrl;
     }
     
     /** StreamClient::getStatusCode()*/
