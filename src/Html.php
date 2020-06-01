@@ -40,7 +40,7 @@ class Html
     }
     
     /** Html::testUris()*/
-    public static function testUris($content=null){
+    public static function testUris($content = null){
         if(!$content)
             return false;
         if(is_array($content))
@@ -49,6 +49,7 @@ class Html
         $images     = $crawler->getDomImages();
         $links      = $crawler->getAllLinks();
         $toCheck    = array_merge($images,$links);
+        return StreamClient::make()->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src')));
         return array_merge_recursive(StreamClient::make()->validateLinks(array_merge(array_column($toCheck, 'href'),array_column($toCheck, 'src'))),$toCheck);
     }
     
