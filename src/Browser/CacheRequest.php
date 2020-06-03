@@ -49,9 +49,6 @@ class CacheRequest
     /** CacheRequest::__call()*/
     public function __call($name,$arguments)
     {
-        if (filter_var(self::$tokenName, FILTER_VALIDATE_URL)) {
-            die(self::$tokenName);
-        }
         $makeNewRequest = true;
         $cachedResponse = self::getCacheClient()->get(self::$tokenName);
         if($cachedResponse){
