@@ -156,9 +156,12 @@ class StreamClient
             }
             $this->getFilenameFromDisposition($uriIndex);
             $this->promises[$uriIndex][self::ASYNC_LOCK_TO_START] = true;
+            $filePath = $this->promises[$uriIndex][self::ASYNC_URIPATH_MAP].$this->promises[$uriIndex][self::ASYNC_URIFILE_MAP];
+            if(file_exists($filePath))
+                unlink($filePath);
             $promiseRequests[$uriIndex] = $this->getClient()->getAsync($uriData[self::ASYNC_URILINK_MAP],
                 [
-                    'save_to'           => $this->promises[$uriIndex][self::ASYNC_URIPATH_MAP].$this->promises[$uriIndex][self::ASYNC_URIFILE_MAP],
+                    'save_to'           => $filePath,
                     'allow_redirects'   => ['track_redirects' => true],
                     'progress'          => function($downloadTotal,$downloadedBytes,$uploadTotal,$uploadedBytes) use ($uriIndex) {
                         $this->promises[$uriIndex][self::ASYNC_TOTAL_SIZE]      = $downloadTotal;
@@ -166,7 +169,7 @@ class StreamClient
                         if(isset($this->promises[$uriIndex][self::ASYNC_LOCK_TO_START]) && $downloadTotal > 0)
                             unset($this->promises[$uriIndex][self::ASYNC_LOCK_TO_START]);
                         if($this->promises[$uriIndex][self::PROGRESS_TO_JSON]) 
-                            echo json_encode([$downloadTotal,$downloadedBytes]);
+                            echo json_encode(array_merge($this->promises[$uriIndex],['statistics' => [$downloadTotal,$downloadedBytes]]));
                         else
                             $this->checkProgressBar($uriIndex);
                     },
@@ -210,10 +213,25 @@ class StreamClient
                 $filename = basename($this->promises[$promisIndex][self::ASYNC_URILINK_MAP]).'.'.$mimetype;
         }
         if($filename)
-            $this->promises[$promisIndex][self::ASYNC_URIFILE_MAP] = $filename;
+            $this->promises[$promisIndex][self::ASYNC_URIFILE_MAP] = self::normalizeString($filename);
         return $this;
     }
     
+    public static function normalizeString ($str = '')
+    {
+        $str = strip_tags($str); 
+        $str = preg_replace('/[\r\n\t ]+/', ' ', $str);
+        $str = preg_replace('/[\"\*\/\:\<\>\?\'\|]+/', ' ', $str);
+        $str = strtolower($str);
+        $str = html_entity_decode( $str, ENT_QUOTES, "utf-8" );
+        $str = htmlentities($str, ENT_QUOTES, "utf-8");
+        $str = preg_replace("/(&)([a-z])([a-z]+;)/i", '$2', $str);
+        $str = str_replace(' ', '-', $str);
+        $str = rawurlencode($str);
+        $str = str_replace('%', '-', $str);
+        return $str;
+    }
+
     /**
     |--------------------------------------------------------------------------
     | cache methods
