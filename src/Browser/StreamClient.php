@@ -300,7 +300,23 @@ class StreamClient
     public function getCookies(){
         return $this->getClient()->getConfig('cookies');
     }
-
+    
+    /** StreamClient::getResponseHeaders() */
+    public function getResponseHeaders(){
+        return $this->currentRequest->getHeaders();
+    }
+    
+    /** StreamClient::getResponseCrawler() */
+    public function getResponseCrawler(){
+        return $this->crawler;
+    }
+    
+    /** StreamClient::getRedirectUrl() */
+    public function getRedirectUrl(){
+        return ($this->getResponseHeaders()['Location'][0]) ? $this->getResponseHeaders()['Location'][0] : false;
+    }
+    
+    
     /** StreamClient::getPageResponse()*/
     public function getPageResponse($url,$arguments=null){
         $this->get($url,$arguments);
