@@ -342,6 +342,11 @@ class StreamClient
     public function getStatusCode(){
         return $this->currentRequest->getStatusCode();
     }
+    
+    /** StreamClient::getReasonPhrase()*/
+    public function getReasonPhrase(){
+        return $this->currentRequest->getReasonPhrase();
+    }        
 
     /** StreamClient::getBody() */
     public function getBody(){     
